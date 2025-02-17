@@ -1,0 +1,169 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProxyProvider Shared Interface &mdash; ProxyProviders 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="canonical" href="https://davidteather.github.io/proxyproviders/proxyprovider.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ProxyProviders
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">ProxyProvider Shared Interface</a><ul>
+<li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyConfig"><code class="docutils literal notranslate"><span class="pre">ProxyConfig</span></code></a><ul>
+<li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyConfig.refresh_interval"><code class="docutils literal notranslate"><span class="pre">ProxyConfig.refresh_interval</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider"><code class="docutils literal notranslate"><span class="pre">ProxyProvider</span></code></a><ul>
+<li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.list_proxies"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.list_proxies()</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.should_refresh"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.should_refresh()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ProxyProviders</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ProxyProvider Shared Interface</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/proxyprovider.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-proxyproviders.proxy_provider">
+<span id="proxyprovider-shared-interface"></span><h1>ProxyProvider Shared Interface<a class="headerlink" href="#module-proxyproviders.proxy_provider" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">proxyproviders.proxy_provider.</span></span><span class="sig-name descname"><span class="pre">ProxyConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">refresh_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">600</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Provides standard shared configuration options for all proxy providers.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Webshare</span><span class="p">,</span> <span class="n">ProxyConfig</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">ProxyConfig</span><span class="p">(</span><span class="n">refresh_interval</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">proxy_provider</span> <span class="o">=</span> <span class="n">Webshare</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyConfig.refresh_interval">
+<span class="sig-name descname"><span class="pre">refresh_interval</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">600</span></em><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyConfig.refresh_interval" title="Link to this definition"></a></dt>
+<dd><p>Duration in seconds after which the proxy list is refreshed to fetch new proxies.
+Set to 0 to disable automatic refreshing after the initial fetch.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyProvider">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">proxyproviders.proxy_provider.</span></span><span class="sig-name descname"><span class="pre">ProxyProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyConfig" title="proxyproviders.proxy_provider.ProxyConfig"><span class="pre">ProxyConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyProvider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyProvider" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for all proxy providers that provides shared functionality across all providers.</p>
+<p>You’ll need to use a specific provider to fetch proxies and this shouldn’t directly be initialized. However, this class is useful for
+type hinting and for creating custom providers that are not included in the library, although consider contributing them to the library if you are making them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> – Configuration for the proxy provider. View the ProxyConfig class docs for more information.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyProvider.list_proxies">
+<span class="sig-name descname"><span class="pre">list_proxies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_refresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="models.html#proxyproviders.models.proxy.Proxy" title="proxyproviders.models.proxy.Proxy"><span class="pre">Proxy</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyProvider.list_proxies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyProvider.list_proxies" title="Link to this definition"></a></dt>
+<dd><p>Returns the stored proxies.
+If a format function is provided, it applies that function to each proxy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>force_refresh</strong> – If True, fetches new proxies even if the list is not considered stale.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyProvider.should_refresh">
+<span class="sig-name descname"><span class="pre">should_refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyProvider.should_refresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyProvider.should_refresh" title="Link to this definition"></a></dt>
+<dd><p>Returns True if the proxy list should be refreshed based on the refresh_interval.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, David Teather.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
