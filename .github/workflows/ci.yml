@@ -29,7 +29,7 @@ jobs:
         run: poetry config virtualenvs.in-project true
 
       - name: Install dependencies
-        run: poetry install --no-root
+        run: poetry install --no-root --dev
 
       - name: Type check with mypy
         run: poetry run mypy proxyproviders
