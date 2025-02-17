@@ -28,7 +28,7 @@ class Webshare(ProxyProvider):
         proxy_provider = Webshare(api_key="your-api-key", params={"country_code_in": "US"})
 
         # Fetch proxies
-        proxies = proxy_provider.fetch_proxies()
+        proxies = proxy_provider.list_proxies()
 
         # With config
         from proxyproviders import ProxyConfig
@@ -37,7 +37,7 @@ class Webshare(ProxyProvider):
         proxy_provider = Webshare(api_key="your-api-key", params={"country_code_in": "US"}, config=config)
 
         # Fetch proxies
-        proxies = proxy_provider.fetch_proxies()
+        proxies = proxy_provider.list_proxies()
     """
     _BASE_URL = "https://proxy.webshare.io/api/v2"
     _PROTOCOLS = ["http", "https"]
@@ -80,7 +80,6 @@ class Webshare(ProxyProvider):
             if data.get("next") is None: # no more pages
                 break
 
-        self._set_proxies(all_proxies)
         return all_proxies
 
     def _convert_to_proxy(self, data: Dict) -> Proxy:

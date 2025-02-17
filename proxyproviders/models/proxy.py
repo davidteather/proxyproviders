@@ -21,14 +21,14 @@ class Proxy:
     port: int
     """The port number through which the proxy connection is established"""
     
-    country_code: Optional[str]
+    country_code: Optional[str] = None
     """The country code where the proxy is located, e.g., 'US', 'FR'. Optional"""
     
-    city_name: Optional[str]
+    city_name: Optional[str] = None
     """The city name where the proxy is located, e.g., 'New York', 'Paris'. Optional"""
     
-    created_at: Optional[datetime]
+    created_at: Optional[datetime] = None
     """The timestamp when the proxy was created. Optional"""
     
-    protocols: List[str]
+    protocols: List[str] = None
     """A list of connection protocols supported by the proxy, e.g., ['http', 'https']"""

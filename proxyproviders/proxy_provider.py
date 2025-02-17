@@ -49,7 +49,8 @@ class ProxyProvider(ABC):
         :param force_refresh: If True, fetches new proxies even if the list is not considered stale.
         """
         if force_refresh or self.should_refresh() or not self._proxies:
-            self._fetch_proxies()
+            proxies = self._fetch_proxies()
+            self._set_proxies(proxies)
 
         with self._lock:
             return list(self._proxies) if self._proxies else []
@@ -59,7 +60,7 @@ class ProxyProvider(ABC):
     #
     @abstractmethod
     def _fetch_proxies(self) -> List[Proxy]:
-        """Fetch proxies from the provider and calls super()._set_proxies().
+        """Fetch proxies from the provider implementation.
         This is not meant to be called directly, as it will always pull from the API even if not stale.
         """
         pass

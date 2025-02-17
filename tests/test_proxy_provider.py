@@ -38,7 +38,6 @@ def test_force_refresh():
     class TestProxyProvider(MockProxyProvider):
         def _fetch_proxies(self) -> List[Proxy]:
             proxies = [1, 2, 3]
-            self._set_proxies(proxies)
             return proxies
 
     provider = TestProxyProvider()
@@ -62,12 +61,6 @@ def test_refresh_interval():
     # When refresh_interval is 0, it should never refresh automatically
     provider = MockProxyProvider(config=ProxyConfig(refresh_interval=0))
     provider._fetch_proxies = lambda: [1, 2, 3]
-    
-    # No proxies initially, so should be an empty list
-    assert provider.list_proxies() == []
-    
-    # Proxies should not refresh even after calling list_proxies
-    assert provider.list_proxies() == []
 
     # Simulate a fetch and set proxies to check refresh
     provider._set_proxies([1, 2, 3])
