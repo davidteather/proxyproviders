@@ -9,8 +9,8 @@ description = "A unified interface for different proxy providers"
 readme = "README.md"
 authors = [{ name = "David Teather", email = "contact.davidteather@gmail.com" }]
 license = { file = "LICENSE" }
-dependencies = []
-requires-python = ">=3.8"
+dependencies = ["requests"]
+requires-python = ">=3.9"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -19,7 +19,13 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "sphinx", "black", "mypy"]
+dev = ["pytest", "sphinx", "black", "mypy", "coverage", "types-requests", "toml"]
 
 [tool.setuptools.packages.find]
 where = ["proxyproviders"]
+
+[tool.coverage.run]
+branch = true
+source = ["proxyproviders"]
+omit = ["tests/*"]
+

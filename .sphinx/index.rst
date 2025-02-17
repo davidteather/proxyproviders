@@ -10,6 +10,9 @@ ProxyProviders Quick Start Documentation
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
 
+.. _proxyprovider:
+.. include:: proxyprovider.rst
+
 .. _providers:
 .. include:: proxyproviders.rst
 

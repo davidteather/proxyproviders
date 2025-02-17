@@ -1,48 +1,61 @@
 import requests
 from datetime import datetime
 from typing import List, Dict, Optional
-from ..proxy_provider import ProxyProvider
-from ..errors import ProxyFetchError, ProxyConversionError, ProxyInvalidResponseError
+from ..proxy_provider import ProxyProvider, ProxyConfig
+from ..exceptions import ProxyFetchException,ProxyConversionException,ProxyInvalidResponseException
 from ..models.proxy import Proxy
 
 class Webshare(ProxyProvider):
-    """Webshare API client for fetching proxies.
+    """Webshare is a proxy provider that offers residential and datacenter proxies.
+
+    Create an account for webshare `here <https://www.webshare.io/?referral_code=3x5812idzzzp>`_ (affiliate link) to get started with 10 free data center proxies.
     
-    Webshare is a proxy provider that offers residential and datacenter proxies.
+    You can find your API key in the Webshare dashboard `here <https://dashboard.webshare.io/userapi/keys>`_
 
-    Create an account [here](https://www.webshare.io/?referral_code=3x5812idzzzp) (affiliate link) to get started with 10 free data center proxies.
+    You can find a list of all available parameters in the Webshare API documentation `here <https://apidocs.webshare.io/proxy-list/list#parameters>`_
+
+    :param api_key: Your Webshare API key
+    :param search_params: Optional parameters to include in the API requests
+    :param config: Configuration for the proxy provider. View the ProxyConfig class docs for more information.
+
+    Example:
+
+    .. code-block:: python
+
+        from proxyproviders import Webshare
+
+        # Initialize the Webshare API client with an API key and optional parameters
+        proxy_provider = Webshare(api_key="your-api-key", params={"country_code_in": "US"})
+
+        # Fetch proxies
+        proxies = proxy_provider.fetch_proxies()
+
+        # With config
+        from proxyproviders import ProxyConfig
+
+        config = ProxyConfig(refresh_interval=60)
+        proxy_provider = Webshare(api_key="your-api-key", params={"country_code_in": "US"}, config=config)
+
+        # Fetch proxies
+        proxies = proxy_provider.fetch_proxies()
     """
-    BASE_URL = "https://proxy.webshare.io/api/v2"
-    PROTOCOLS = ["http", "https"]
+    _BASE_URL = "https://proxy.webshare.io/api/v2"
+    _PROTOCOLS = ["http", "https"]
 
-    def __init__(self, api_key: str, search_params: Optional[dict] = None):
-        """
-        Initialize the Webshare API client with an API key and optional parameters.
-
-        :param api_key: Your Webshare API key
-        :param params: Optional parameters to include in the API requests
-
-        Example:
-        ```
-        ws = Webshare(api_key="your-api-key", params={"country_code_in": "US"})
-        ```
-
-        You can find your API key in the Webshare dashboard [here](https://dashboard.webshare.io/userapi/keys)
-
-        You can find a list of all available parameters in the Webshare API documentation [here](https://apidocs.webshare.io/proxy-list/list#parameters)
-        """
+    def __init__(self, api_key: str, search_params: Optional[dict] = None, config: Optional[ProxyConfig] = None):
+        super().__init__(config)
         self.api_key = api_key
         self.search_params = search_params or {}
-        self.proxies: List[Proxy] = None
 
-    def fetch_proxies(self) -> List[Proxy]:
+    def _fetch_proxies(self) -> List[Proxy]:
         """Fetches proxies from Webshare API and converts them to the standardized Proxy format."""
         headers = {"Authorization": f"Token {self.api_key}"}
 
         all_proxies = []
-        page = 1
+        page = 0
         
         while True:
+            page += 1
             default_params = {
                 "mode": "direct",
                 "page": page,
@@ -50,25 +63,24 @@ class Webshare(ProxyProvider):
             }
 
             params = {**default_params, **self.search_params}
-
             try:
-                response = requests.get(f"{self.BASE_URL}/proxy/list", params=params, headers=headers)
+                response = requests.get(f"{self._BASE_URL}/proxy/list", params=params, headers=headers)
                 response.raise_for_status()  # Raises HTTPError for bad responses
             except requests.exceptions.RequestException as e:
-                raise ProxyFetchError(f"Failed to fetch proxies: {str(e)}") from e
+                raise ProxyFetchException(f"Failed to fetch proxies: {str(e)}") from e
 
             data = response.json()
 
             proxy_data = data.get("results")
             if not proxy_data:
-                raise ProxyInvalidResponseError(response.text)
+                raise ProxyInvalidResponseException(response.text)
                 
             all_proxies.extend([self._convert_to_proxy(proxy) for proxy in proxy_data])
 
             if data.get("next") is None: # no more pages
                 break
 
-        self.proxies = all_proxies
+        self._set_proxies(all_proxies)
         return all_proxies
 
     def _convert_to_proxy(self, data: Dict) -> Proxy:
@@ -83,10 +95,10 @@ class Webshare(ProxyProvider):
                 country_code=data.get("country_code"),
                 city_name=data.get("city_name"),
                 created_at=self._parse_timestamp(data.get("created_at")),
-                protocols=self.PROTOCOLS,
+                protocols=self._PROTOCOLS,
             )
-        except (KeyError, ValueError) as e:
-            raise ProxyConversionError(f"Failed to convert proxy data: {str(e)}") from e
+        except (KeyError,ValueError) as e:
+            raise ProxyConversionException(f"Failed to convert proxy data: {str(e)}") from e
 
     def _parse_timestamp(self, timestamp: Optional[str]) -> Optional[datetime]:
         """Parses an ISO 8601 timestamp string into a datetime object."""

@@ -6,15 +6,17 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import toml
 import os
 import sys
 
 sys.path.insert(0, os.path.abspath('../'))
+pyproject = toml.load('../pyproject.toml')
 
 project = 'ProxyProviders'
 copyright = '2025, David Teather'
 author = 'David Teather'
-release = '0.1.0'
+release = pyproject['project']['version']
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
