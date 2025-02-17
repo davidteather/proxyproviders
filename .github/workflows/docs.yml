@@ -17,10 +17,18 @@ jobs:
       with:
         python-version: '3.x'
 
+    - name: Install Poetry
+      run: curl -sSL https://install.python-poetry.org | python3 -
+
+    - name: Configure Poetry to create virtualenvs in project root
+      run: poetry config virtualenvs.in-project true
+
+    - name: Install dependencies
+      run: poetry install --no-root
+
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
         pip install sphinx sphinx_rtd_theme myst-parser
 
     - name: Build Documentation
