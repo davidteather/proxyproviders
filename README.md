@@ -1,6 +1,6 @@
 # ProxyProviders
 
-The Unified Python Proxy API with support for BrightData, WebShare, and more.
+The Unified Python Proxy API for managing proxies with support for BrightData, WebShare, and more.
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&style=flat-square)](https://www.linkedin.com/in/davidteather/) [![Sponsor Me](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub)](https://github.com/sponsors/davidteather) [![GitHub release (latest by date)](https://img.shields.io/github/v/release/davidteather/proxyproviders)](https://github.com/davidteather/proxyproviders/releases) [![GitHub](https://img.shields.io/github/license/davidteather/proxyproviders)](https://github.com/davidteather/proxyproviders/blob/main/LICENSE) [![Downloads](https://pepy.tech/badge/proxyproviders)](https://pypi.org/project/proxyproviders/) ![](https://visitor-badge.laobi.icu/badge?page_id=davidteather.proxyproviders) [![Support Server](https://img.shields.io/discord/783108952111579166.svg?color=7289da&logo=discord&style=flat-square)](https://discord.gg/yyPhbfma6f)
 

@@ -3,3 +3,6 @@ test.py
 poetry.lock
 .coverage
 .DS_Store
+build
+dist
+*.egg-info
