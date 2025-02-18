@@ -80,6 +80,13 @@
 </li>
 <li><a class="reference internal" href="#proxyproviders-supported-providers">ProxyProviders Supported Providers</a><ul>
 <li><a class="reference internal" href="#proxyproviders.providers.webshare.Webshare"><code class="docutils literal notranslate"><span class="pre">Webshare</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.providers.brightdata.BrightData"><code class="docutils literal notranslate"><span class="pre">BrightData</span></code></a><ul>
+<li><a class="reference internal" href="#proxyproviders.providers.brightdata.BrightData.get_active_zones"><code class="docutils literal notranslate"><span class="pre">BrightData.get_active_zones()</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.providers.brightdata.BrightData.get_zone_username"><code class="docutils literal notranslate"><span class="pre">BrightData.get_zone_username()</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.providers.brightdata.BrightData.get_zone_passwords"><code class="docutils literal notranslate"><span class="pre">BrightData.get_zone_passwords()</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.providers.brightdata.BrightData.list_all_ips_in_zone"><code class="docutils literal notranslate"><span class="pre">BrightData.list_all_ips_in_zone()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-proxyproviders.models.proxy">ProxyProviders Models</a><ul>
@@ -234,7 +241,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">proxies</span><span class="p">)</span>
 
 <span class="n">webshare</span> <span class="o">=</span> <span class="n">Webshare</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your_api_key&quot;</span><span class="p">)</span>
-<span class="n">brightdata</span> <span class="o">=</span> <span class="n">BrightData</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your_api_key&quot;</span><span class="p">)</span>
+<span class="n">brightdata</span> <span class="o">=</span> <span class="n">BrightData</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your_api_key&quot;</span><span class="p">,</span> <span class="n">zone</span><span class="o">=</span><span class="s2">&quot;my_zone&quot;</span><span class="p">)</span>
 
 <span class="n">some_function</span><span class="p">(</span><span class="n">webshare</span><span class="p">)</span>
 <span class="n">some_function</span><span class="p">(</span><span class="n">brightdata</span><span class="p">)</span>
@@ -346,6 +353,7 @@ If a format function is provided, it applies that function to each proxy.</p>
 <p>Current Providers Supported:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://www.webshare.io/?referral_code=3x5812idzzzp">Webshare.io</a> (referral link) - try out 10 free datacenter proxies</p></li>
+<li><p><a class="reference external" href="https://get.brightdata.com/davidteather">BrightData</a> (affiliate link)</p></li>
 </ul>
 <p>Don’t see a provider you need? Open an issue or submit a PR!</p>
 <dl class="py class" id="module-proxyproviders.providers.webshare">
@@ -386,12 +394,117 @@ If a format function is provided, it applies that function to each proxy.</p>
 </div>
 </dd></dl>
 
+<dl class="py class" id="module-proxyproviders.providers.brightdata">
+<span id="id3"></span><dt class="sig sig-object py" id="proxyproviders.providers.brightdata.BrightData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">proxyproviders.providers.brightdata.</span></span><span class="sig-name descname"><span class="pre">BrightData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username_suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_super_proxy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="proxyprovider.html#proxyproviders.proxy_provider.ProxyConfig" title="proxyproviders.proxy_provider.ProxyConfig"><span class="pre">ProxyConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/proxyproviders/providers/brightdata.html#BrightData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.providers.brightdata.BrightData" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="proxyprovider.html#proxyproviders.proxy_provider.ProxyProvider" title="proxyproviders.proxy_provider.ProxyProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProxyProvider</span></code></a></p>
+<p>BrightData (formerly luminati) is a proxy provider that offers residential and datacenter proxies.</p>
+<p>Create an account <a class="reference external" href="https://get.brightdata.com/davidteather">here</a> (affiliate link).</p>
+<p>You can find your API key in the account settings <a class="reference external" href="https://brightdata.com/cp/setting/users">here</a> then create “add token” with scope “limit” (<a class="reference external" href="https://docs.brightdata.com/general/account/api-token">BrightData article</a> for more info)</p>
+<p>The BrightData API documentation is <a class="reference external" href="https://docs.brightdata.com/api-reference/account-management-api/Get_active_Zones?playground=open">here</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api_key</strong> – Your BrightData API key</p></li>
+<li><p><strong>zone</strong> – The zone ID/name to fetch proxies for (you can get this from the BrightData dashboard)</p></li>
+<li><p><strong>username_suffix</strong> – Optional suffix to append to the username <a class="reference external" href="https://docs.brightdata.com/proxy-networks/config-options">more info</a> allows you to target region, city, etc. (requires use_super_proxy=True)</p></li>
+<li><p><strong>use_super_proxy</strong> – Optional flag to use super proxy instead of targeting specific IPs, this is enabled by default. If you want to target specific IPs or have consistent IPs for a session, set this to False.</p></li>
+<li><p><strong>config</strong> – Configuration for the proxy provider. View the ProxyConfig class docs for more information.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">BrightData</span>
+
+<span class="c1"># Initialize the BrightData API client with an API key and a zone</span>
+<span class="n">proxy_provider</span> <span class="o">=</span> <span class="n">BrightData</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">zone</span><span class="o">=</span><span class="s2">&quot;my_zone&quot;</span><span class="p">)</span>
+
+<span class="c1"># Fetch proxies</span>
+<span class="n">proxies</span> <span class="o">=</span> <span class="n">proxy_provider</span><span class="o">.</span><span class="n">list_proxies</span><span class="p">()</span> <span class="c1"># returns one proxy for super proxy by default</span>
+
+<span class="c1"># If you want to manage specific IPs</span>
+<span class="n">proxy_provider</span> <span class="o">=</span> <span class="n">BrightData</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">zone</span><span class="o">=</span><span class="s2">&quot;my_zone&quot;</span><span class="p">,</span> <span class="n">use_super_proxy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">proxies</span> <span class="o">=</span> <span class="n">proxy_provider</span><span class="o">.</span><span class="n">list_proxies</span><span class="p">()</span> <span class="c1"># returns multiple proxies for each IP in the zone (potentially thousands)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.providers.brightdata.BrightData.get_active_zones">
+<span class="sig-name descname"><span class="pre">get_active_zones</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/proxyproviders/providers/brightdata.html#BrightData.get_active_zones"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.providers.brightdata.BrightData.get_active_zones" title="Link to this definition"></a></dt>
+<dd><p>Fetches active zones from BrightData API.</p>
+<p>Response:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zone1&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dc&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.providers.brightdata.BrightData.get_zone_username">
+<span class="sig-name descname"><span class="pre">get_zone_username</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/proxyproviders/providers/brightdata.html#BrightData.get_zone_username"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.providers.brightdata.BrightData.get_zone_username" title="Link to this definition"></a></dt>
+<dd><p>Fetches zone username for the given zone ID from BrightData API.</p>
+<p>Note: this isn’t directly an API endpoint, I’m sort of reconstructing some things here and it seems to behave a little weird.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>zone</strong> – The zone ID to fetch username for</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.providers.brightdata.BrightData.get_zone_passwords">
+<span class="sig-name descname"><span class="pre">get_zone_passwords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/proxyproviders/providers/brightdata.html#BrightData.get_zone_passwords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.providers.brightdata.BrightData.get_zone_passwords" title="Link to this definition"></a></dt>
+<dd><p>Fetches zone passwords from BrightData API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>zone</strong> – The zone ID to fetch passwords for</p>
+</dd>
+</dl>
+<p>Response:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;passwords&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;password1&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;password2&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.providers.brightdata.BrightData.list_all_ips_in_zone">
+<span class="sig-name descname"><span class="pre">list_all_ips_in_zone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">country</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/proxyproviders/providers/brightdata.html#BrightData.list_all_ips_in_zone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.providers.brightdata.BrightData.list_all_ips_in_zone" title="Link to this definition"></a></dt>
+<dd><p>Fetches all IPs in a zone from BrightData API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>zone</strong> – The zone ID to fetch IPs for</p></li>
+<li><p><strong>country</strong> – Optional 2-letter country code to filter IPs by</p></li>
+</ul>
+</dd>
+</dl>
+<p>Response:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;ip&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;country&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;US&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-proxyproviders.models.proxy">
 <span id="proxyproviders-models"></span><span id="models"></span><h1>ProxyProviders Models<a class="headerlink" href="#module-proxyproviders.models.proxy" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="proxyproviders.models.proxy.Proxy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">proxyproviders.models.proxy.</span></span><span class="sig-name descname"><span class="pre">Proxy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">city_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_at</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/proxyproviders/models/proxy.html#Proxy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.models.proxy.Proxy" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">proxyproviders.models.proxy.</span></span><span class="sig-name descname"><span class="pre">Proxy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">city_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_at</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/proxyproviders/models/proxy.html#Proxy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.models.proxy.Proxy" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Our shared data model for a proxy object across all providers.</p>
 <dl class="py attribute">
@@ -444,7 +557,7 @@ If a format function is provided, it applies that function to each proxy.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="proxyproviders.models.proxy.Proxy.protocols">
-<span class="sig-name descname"><span class="pre">protocols</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#proxyproviders.models.proxy.Proxy.protocols" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">protocols</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#proxyproviders.models.proxy.Proxy.protocols" title="Link to this definition"></a></dt>
 <dd><p>A list of connection protocols supported by the proxy, e.g., [‘http’, ‘https’]</p>
 </dd></dl>
 

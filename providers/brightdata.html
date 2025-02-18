@@ -1,0 +1,213 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>&lt;no title&gt; &mdash; ProxyProviders 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="canonical" href="https://davidteather.github.io/proxyproviders/providers/brightdata.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ProxyProviders
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">BrightData</span></code></a><ul>
+<li><a class="reference internal" href="#proxyproviders.providers.brightdata.BrightData.get_active_zones"><code class="docutils literal notranslate"><span class="pre">BrightData.get_active_zones()</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.providers.brightdata.BrightData.get_zone_username"><code class="docutils literal notranslate"><span class="pre">BrightData.get_zone_username()</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.providers.brightdata.BrightData.get_zone_passwords"><code class="docutils literal notranslate"><span class="pre">BrightData.get_zone_passwords()</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.providers.brightdata.BrightData.list_all_ips_in_zone"><code class="docutils literal notranslate"><span class="pre">BrightData.list_all_ips_in_zone()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ProxyProviders</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">&lt;no title&gt;</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/providers/brightdata.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <dl class="py class" id="module-proxyproviders.providers.brightdata">
+<dt class="sig sig-object py" id="proxyproviders.providers.brightdata.BrightData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">proxyproviders.providers.brightdata.</span></span><span class="sig-name descname"><span class="pre">BrightData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username_suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_super_proxy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../proxyprovider.html#proxyproviders.proxy_provider.ProxyConfig" title="proxyproviders.proxy_provider.ProxyConfig"><span class="pre">ProxyConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/proxyproviders/providers/brightdata.html#BrightData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.providers.brightdata.BrightData" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../proxyprovider.html#proxyproviders.proxy_provider.ProxyProvider" title="proxyproviders.proxy_provider.ProxyProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProxyProvider</span></code></a></p>
+<p>BrightData (formerly luminati) is a proxy provider that offers residential and datacenter proxies.</p>
+<p>Create an account <a class="reference external" href="https://get.brightdata.com/davidteather">here</a> (affiliate link).</p>
+<p>You can find your API key in the account settings <a class="reference external" href="https://brightdata.com/cp/setting/users">here</a> then create “add token” with scope “limit” (<a class="reference external" href="https://docs.brightdata.com/general/account/api-token">BrightData article</a> for more info)</p>
+<p>The BrightData API documentation is <a class="reference external" href="https://docs.brightdata.com/api-reference/account-management-api/Get_active_Zones?playground=open">here</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api_key</strong> – Your BrightData API key</p></li>
+<li><p><strong>zone</strong> – The zone ID/name to fetch proxies for (you can get this from the BrightData dashboard)</p></li>
+<li><p><strong>username_suffix</strong> – Optional suffix to append to the username <a class="reference external" href="https://docs.brightdata.com/proxy-networks/config-options">more info</a> allows you to target region, city, etc. (requires use_super_proxy=True)</p></li>
+<li><p><strong>use_super_proxy</strong> – Optional flag to use super proxy instead of targeting specific IPs, this is enabled by default. If you want to target specific IPs or have consistent IPs for a session, set this to False.</p></li>
+<li><p><strong>config</strong> – Configuration for the proxy provider. View the ProxyConfig class docs for more information.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">BrightData</span>
+
+<span class="c1"># Initialize the BrightData API client with an API key and a zone</span>
+<span class="n">proxy_provider</span> <span class="o">=</span> <span class="n">BrightData</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">zone</span><span class="o">=</span><span class="s2">&quot;my_zone&quot;</span><span class="p">)</span>
+
+<span class="c1"># Fetch proxies</span>
+<span class="n">proxies</span> <span class="o">=</span> <span class="n">proxy_provider</span><span class="o">.</span><span class="n">list_proxies</span><span class="p">()</span> <span class="c1"># returns one proxy for super proxy by default</span>
+
+<span class="c1"># If you want to manage specific IPs</span>
+<span class="n">proxy_provider</span> <span class="o">=</span> <span class="n">BrightData</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">zone</span><span class="o">=</span><span class="s2">&quot;my_zone&quot;</span><span class="p">,</span> <span class="n">use_super_proxy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">proxies</span> <span class="o">=</span> <span class="n">proxy_provider</span><span class="o">.</span><span class="n">list_proxies</span><span class="p">()</span> <span class="c1"># returns multiple proxies for each IP in the zone (potentially thousands)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.providers.brightdata.BrightData.get_active_zones">
+<span class="sig-name descname"><span class="pre">get_active_zones</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="../_modules/proxyproviders/providers/brightdata.html#BrightData.get_active_zones"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.providers.brightdata.BrightData.get_active_zones" title="Link to this definition"></a></dt>
+<dd><p>Fetches active zones from BrightData API.</p>
+<p>Response:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zone1&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dc&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.providers.brightdata.BrightData.get_zone_username">
+<span class="sig-name descname"><span class="pre">get_zone_username</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/proxyproviders/providers/brightdata.html#BrightData.get_zone_username"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.providers.brightdata.BrightData.get_zone_username" title="Link to this definition"></a></dt>
+<dd><p>Fetches zone username for the given zone ID from BrightData API.</p>
+<p>Note: this isn’t directly an API endpoint, I’m sort of reconstructing some things here and it seems to behave a little weird.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>zone</strong> – The zone ID to fetch username for</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.providers.brightdata.BrightData.get_zone_passwords">
+<span class="sig-name descname"><span class="pre">get_zone_passwords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="../_modules/proxyproviders/providers/brightdata.html#BrightData.get_zone_passwords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.providers.brightdata.BrightData.get_zone_passwords" title="Link to this definition"></a></dt>
+<dd><p>Fetches zone passwords from BrightData API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>zone</strong> – The zone ID to fetch passwords for</p>
+</dd>
+</dl>
+<p>Response:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;passwords&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;password1&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;password2&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.providers.brightdata.BrightData.list_all_ips_in_zone">
+<span class="sig-name descname"><span class="pre">list_all_ips_in_zone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">country</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="../_modules/proxyproviders/providers/brightdata.html#BrightData.list_all_ips_in_zone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.providers.brightdata.BrightData.list_all_ips_in_zone" title="Link to this definition"></a></dt>
+<dd><p>Fetches all IPs in a zone from BrightData API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>zone</strong> – The zone ID to fetch IPs for</p></li>
+<li><p><strong>country</strong> – Optional 2-letter country code to filter IPs by</p></li>
+</ul>
+</dd>
+</dl>
+<p>Response:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;ip&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;country&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;US&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, David Teather.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
