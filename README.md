@@ -1,5 +1,6 @@
 # ProxyProviders
-Unified python interface for proxy provider APIs, supports BrightData, WebShare, and more.
+
+The Unified Python Proxy API with support for BrightData, WebShare, and more.
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&style=flat-square)](https://www.linkedin.com/in/davidteather/) [![Sponsor Me](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub)](https://github.com/sponsors/davidteather) [![GitHub release (latest by date)](https://img.shields.io/github/v/release/davidteather/proxyproviders)](https://github.com/davidteather/proxyproviders/releases) [![GitHub](https://img.shields.io/github/license/davidteather/proxyproviders)](https://github.com/davidteather/proxyproviders/blob/main/LICENSE) [![Downloads](https://pepy.tech/badge/proxyproviders)](https://pypi.org/project/proxyproviders/) ![](https://visitor-badge.laobi.icu/badge?page_id=davidteather.proxyproviders) [![Support Server](https://img.shields.io/discord/783108952111579166.svg?color=7289da&logo=discord&style=flat-square)](https://discord.gg/yyPhbfma6f)
 
@@ -91,7 +92,7 @@ ws.list_proxies() # calls API since it's more than 3s later
 Since all proxy providers implement the same interface, we can make a function that allows us to easily swap out and utilize different providers. This is the main appeal of having a unified interface. It allows other modules to be provider agnostic, like my [TikTokAPI](https://github.com/davidteather/TikTok-Api) package.
 
 ```py
-from proxyproviders import Webshare, ProxyProvider, ProxyConfig
+from proxyproviders import Webshare, BrightData, ProxyProvider, ProxyConfig
 
 def some_function(provider: ProxyProvider):
     proxies = provider.list_proxies()
@@ -102,6 +103,36 @@ brightdata = BrightData(api_key="your_api_key", zone="my_zone")
 
 some_function(webshare)
 some_function(brightdata)
+```
+
+Here's a more meaningful example that takes the `Proxy` class and uses it to create a python requests http proxy.
+
+```py
+from proxyproviders import Webshare, BrightData, ProxyProvider
+import requests
+import os
+
+
+def request_with_proxy(provider: ProxyProvider):
+    requests_proxy = None
+
+    if provider:
+        proxies = provider.list_proxies()
+
+        requests_proxy = {
+            "http": f"http://{proxies[0].username}:{proxies[0].password}@{proxies[0].proxy_address}:{proxies[0].port}",
+            "https": f"http://{proxies[0].username}:{proxies[0].password}@{proxies[0].proxy_address}:{proxies[0].port}",
+        }
+
+    r = requests.get("https://httpbin.org/ip", proxies=requests_proxy)
+    return r.json()
+
+webshare = Webshare(api_key="your_api_key")
+brightdata = BrightData(api_key="your_api_key", zone="your_zone")
+
+print(f"Your IP: {request_with_proxy(None)}")
+print(f"Webshare: {request_with_proxy(webshare)}")
+print(f"BrightData: {request_with_proxy(brightdata)}")
 ```
 
 ### Making Your Own Proxy Provider
