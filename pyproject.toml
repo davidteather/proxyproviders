@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [project]
 name = "proxyproviders"
-version = "0.1.0"
+version = "0.1.1"
 description = "A unified interface for different proxy providers"
 readme = "README.md"
 authors = [{ name = "David Teather", email = "contact.davidteather@gmail.com" }]
