@@ -4,6 +4,7 @@ from proxyproviders.providers.webshare import Webshare
 from proxyproviders.providers.brightdata import BrightData
 from proxyproviders.proxy_provider import ProxyConfig
 
+
 @pytest.fixture
 def webshare_provider():
     """
@@ -12,6 +13,7 @@ def webshare_provider():
     """
     api_key = os.getenv("WEBSHARE_API_KEY", "test-api-key")
     return Webshare(api_key=api_key, config=ProxyConfig(refresh_interval=0))
+
 
 @pytest.fixture
 def brightdata_provider():

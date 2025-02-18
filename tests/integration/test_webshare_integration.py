@@ -5,8 +5,9 @@ from proxyproviders.providers.webshare import Webshare
 # Skip integration tests unless explicitly enabled
 skip_integration = pytest.mark.skipif(
     not (os.getenv("RUN_INTEGRATION_TESTS") and os.getenv("WEBSHARE_API_KEY")),
-    reason="Integration tests require RUN_INTEGRATION_TESTS flag and a valid WEBSHARE_API_KEY"
+    reason="Integration tests require RUN_INTEGRATION_TESTS flag and a valid WEBSHARE_API_KEY",
 )
+
 
 @skip_integration
 def test_webshare_integration():
@@ -23,5 +24,5 @@ def test_webshare_integration():
     assert isinstance(proxies, list)
     if proxies:
         for proxy in proxies:
-            assert hasattr(proxy, 'port')
+            assert hasattr(proxy, "port")
             assert isinstance(proxy.port, int)

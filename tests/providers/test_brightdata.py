@@ -6,6 +6,7 @@ from proxyproviders.exceptions import (
     ProxyInvalidResponseException,
 )
 
+
 @responses.activate
 def test_fetch_proxies_super_proxy(brightdata_provider):
     """
@@ -82,10 +83,11 @@ def test_fetch_proxies_ip_mode(brightdata_provider):
         ],
         status=200,
         # Note: When matching query parameters, string values are used.
-        match=[responses.matchers.query_param_matcher({
-            "zone": "test-zone",
-            "list_countries": "True"
-        })],
+        match=[
+            responses.matchers.query_param_matcher(
+                {"zone": "test-zone", "list_countries": "True"}
+            )
+        ],
     )
 
     proxies = brightdata_provider._fetch_proxies()
@@ -151,10 +153,11 @@ def test_list_all_ips_in_zone_failure(brightdata_provider):
         "https://api.brightdata.com/zone/route_ips",
         json={"error": "Not found"},
         status=404,
-        match=[responses.matchers.query_param_matcher({
-            "zone": "test-zone",
-            "list_countries": "True"
-        })],
+        match=[
+            responses.matchers.query_param_matcher(
+                {"zone": "test-zone", "list_countries": "True"}
+            )
+        ],
     )
 
     with pytest.raises(ProxyFetchException):

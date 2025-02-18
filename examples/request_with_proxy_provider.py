@@ -17,6 +17,7 @@ def request_with_proxy(provider: ProxyProvider):
     r = requests.get("https://httpbin.org/ip", proxies=requests_proxy)
     return r.json()
 
+
 webshare = Webshare(api_key="your_api_key")
 brightdata = BrightData(api_key="your_api_key", zone="your_zone")
 

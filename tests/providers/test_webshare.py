@@ -2,14 +2,20 @@ import os
 import pytest
 import responses
 from proxyproviders.providers.webshare import Webshare
-from proxyproviders.exceptions import ProxyFetchException, ProxyInvalidResponseException, ProxyConversionException
+from proxyproviders.exceptions import (
+    ProxyFetchException,
+    ProxyInvalidResponseException,
+    ProxyConversionException,
+)
 from proxyproviders.models.proxy import Proxy
+
 
 @pytest.fixture
 def mock_webshare():
     """Fixture to create a Webshare provider instance for unit tests."""
     api_key = os.getenv("WEBSHARE_API_KEY", "test-api-key")
     return Webshare(api_key=api_key)
+
 
 @responses.activate
 def test_fetch_proxies_success(mock_webshare):
@@ -34,7 +40,7 @@ def test_fetch_proxies_success(mock_webshare):
             ],
             "next": None,
         },
-        status=200
+        status=200,
     )
     proxies = mock_webshare._fetch_proxies()
     assert isinstance(proxies, list)
@@ -42,6 +48,7 @@ def test_fetch_proxies_success(mock_webshare):
     proxy = proxies[0]
     assert isinstance(proxy, Proxy)
     assert proxy.proxy_address == "192.168.1.1"
+
 
 @responses.activate
 def test_fetch_proxies_pagination(mock_webshare):
@@ -67,9 +74,9 @@ def test_fetch_proxies_pagination(mock_webshare):
             ],
             "next": "https://proxy.webshare.io/api/v2/proxy/list?mode=direct&page=2&page_size=100",
         },
-        status=200
+        status=200,
     )
-    
+
     # Page 2
     responses.add(
         responses.GET,
@@ -89,16 +96,17 @@ def test_fetch_proxies_pagination(mock_webshare):
             ],
             "next": None,
         },
-        status=200
+        status=200,
     )
-    
+
     proxies = mock_webshare._fetch_proxies()
-    
+
     assert isinstance(proxies, list)
     assert len(proxies) == 2
-    
-    assert proxies[0].proxy_address == "192.168.1.1" 
+
+    assert proxies[0].proxy_address == "192.168.1.1"
     assert proxies[1].proxy_address == "192.168.1.2"
+
 
 @responses.activate
 def test_fetch_proxies_invalid_response(mock_webshare):
@@ -109,10 +117,11 @@ def test_fetch_proxies_invalid_response(mock_webshare):
         responses.GET,
         "https://proxy.webshare.io/api/v2/proxy/list",
         json={"error": "Invalid API Key"},
-        status=403
+        status=403,
     )
     with pytest.raises(ProxyFetchException):
         mock_webshare._fetch_proxies()
+
 
 def test_sanity_check_webshare_structure(mock_webshare):
     """
@@ -124,6 +133,7 @@ def test_sanity_check_webshare_structure(mock_webshare):
     result = mock_webshare.list_proxies()
     assert isinstance(result, list)
 
+
 @responses.activate
 def test_fetch_proxies_empty_list(mock_webshare):
     """
@@ -133,11 +143,12 @@ def test_fetch_proxies_empty_list(mock_webshare):
         responses.GET,
         "https://proxy.webshare.io/api/v2/proxy/list",
         json={},
-        status=200
+        status=200,
     )
 
     with pytest.raises(ProxyInvalidResponseException):
         mock_webshare._fetch_proxies()
+
 
 @responses.activate
 def test_bad_proxy_format_response(mock_webshare):
@@ -148,18 +159,15 @@ def test_bad_proxy_format_response(mock_webshare):
         responses.GET,
         "https://proxy.webshare.io/api/v2/proxy/list",
         json={
-            "results": [
-                {
-                    "error": "could not retrieve"
-                }
-            ],
+            "results": [{"error": "could not retrieve"}],
             "next": None,
         },
-        status=200
+        status=200,
     )
 
     with pytest.raises(ProxyConversionException):
         mock_webshare._fetch_proxies()
+
 
 @responses.activate
 def test_invalid_proxy_timestamp(mock_webshare):
@@ -189,11 +197,11 @@ def test_invalid_proxy_timestamp(mock_webshare):
                     "port": 8080,
                     "country_code": "US",
                     "city_name": "New York",
-                }
+                },
             ],
             "next": None,
         },
-        status=200
+        status=200,
     )
 
     proxies = mock_webshare._fetch_proxies()

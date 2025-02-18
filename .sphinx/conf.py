@@ -10,13 +10,13 @@ import toml
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('../'))
-pyproject = toml.load('../pyproject.toml')
+sys.path.insert(0, os.path.abspath("../"))
+pyproject = toml.load("../pyproject.toml")
 
-project = 'ProxyProviders'
-copyright = '2025, David Teather'
-author = 'David Teather'
-release = pyproject['project']['version']
+project = "ProxyProviders"
+copyright = "2025, David Teather"
+author = "David Teather"
+release = pyproject["project"]["version"]
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -33,14 +33,13 @@ extensions = [
 
 autosummary_generate = True
 
-autodoc_default_flags = ['members', 'undoc-members', 'show-inheritance']
-autodoc_member_order = 'bysource'
+autodoc_default_flags = ["members", "undoc-members", "show-inheritance"]
+autodoc_member_order = "bysource"
 
 templates_path = ["_templates"]
 exclude_patterns = ["docs", "Thumbs.db", ".DS_Store"]
 
 napoleon_google_docstring = True
-
 
 
 # -- Options for HTML output -------------------------------------------------

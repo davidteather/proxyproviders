@@ -2,14 +2,19 @@ import requests
 from datetime import datetime
 from typing import List, Dict, Optional
 from ..proxy_provider import ProxyProvider, ProxyConfig
-from ..exceptions import ProxyFetchException,ProxyConversionException,ProxyInvalidResponseException
+from ..exceptions import (
+    ProxyFetchException,
+    ProxyConversionException,
+    ProxyInvalidResponseException,
+)
 from ..models.proxy import Proxy
+
 
 class Webshare(ProxyProvider):
     """Webshare is a proxy provider that offers residential and datacenter proxies.
 
     Create an account for webshare `here <https://www.webshare.io/?referral_code=3x5812idzzzp>`_ (affiliate link) to get started with 10 free data center proxies.
-    
+
     You can find your API key in the Webshare dashboard `here <https://dashboard.webshare.io/userapi/keys>`_
 
     You can find a list of all available parameters in the Webshare API documentation `here <https://apidocs.webshare.io/proxy-list/list#parameters>`_
@@ -39,10 +44,16 @@ class Webshare(ProxyProvider):
         # Fetch proxies
         proxies = proxy_provider.list_proxies()
     """
+
     _BASE_URL = "https://proxy.webshare.io/api/v2"
     _PROTOCOLS = ["http", "https"]
 
-    def __init__(self, api_key: str, search_params: Optional[dict] = None, config: Optional[ProxyConfig] = None):
+    def __init__(
+        self,
+        api_key: str,
+        search_params: Optional[dict] = None,
+        config: Optional[ProxyConfig] = None,
+    ):
         super().__init__(config)
         self.api_key = api_key
         self.search_params = search_params or {}
@@ -53,7 +64,7 @@ class Webshare(ProxyProvider):
 
         all_proxies = []
         page = 0
-        
+
         while True:
             page += 1
             default_params = {
@@ -64,7 +75,9 @@ class Webshare(ProxyProvider):
 
             params = {**default_params, **self.search_params}
             try:
-                response = requests.get(f"{self._BASE_URL}/proxy/list", params=params, headers=headers)
+                response = requests.get(
+                    f"{self._BASE_URL}/proxy/list", params=params, headers=headers
+                )
                 response.raise_for_status()  # Raises HTTPError for bad responses
             except requests.exceptions.RequestException as e:
                 raise ProxyFetchException(f"Failed to fetch proxies: {str(e)}") from e
@@ -74,10 +87,10 @@ class Webshare(ProxyProvider):
             proxy_data = data.get("results")
             if not proxy_data:
                 raise ProxyInvalidResponseException(response.text)
-                
+
             all_proxies.extend([self._convert_to_proxy(proxy) for proxy in proxy_data])
 
-            if data.get("next") is None: # no more pages
+            if data.get("next") is None:  # no more pages
                 break
 
         return all_proxies
@@ -96,8 +109,10 @@ class Webshare(ProxyProvider):
                 created_at=self._parse_timestamp(data.get("created_at")),
                 protocols=self._PROTOCOLS,
             )
-        except (KeyError,ValueError) as e:
-            raise ProxyConversionException(f"Failed to convert proxy data: {str(e)}") from e
+        except (KeyError, ValueError) as e:
+            raise ProxyConversionException(
+                f"Failed to convert proxy data: {str(e)}"
+            ) from e
 
     def _parse_timestamp(self, timestamp: Optional[str]) -> Optional[datetime]:
         """Parses an ISO 8601 timestamp string into a datetime object."""
