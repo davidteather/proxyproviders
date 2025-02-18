@@ -7,16 +7,12 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   pypi-publish:
     name: Upload release to PyPI
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/project/proxyproviders/
-    permissions:
-      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
