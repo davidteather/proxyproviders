@@ -98,7 +98,7 @@ def some_function(provider: ProxyProvider):
     print(proxies)
 
 webshare = Webshare(api_key="your_api_key")
-brightdata = BrightData(api_key="your_api_key")
+brightdata = BrightData(api_key="your_api_key", zone="my_zone")
 
 some_function(webshare)
 some_function(brightdata)

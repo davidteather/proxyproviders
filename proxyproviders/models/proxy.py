@@ -30,5 +30,5 @@ class Proxy:
     created_at: Optional[datetime] = None
     """The timestamp when the proxy was created. Optional"""
     
-    protocols: List[str] = None
+    protocols: Optional[List[str]] = None
     """A list of connection protocols supported by the proxy, e.g., ['http', 'https']"""
