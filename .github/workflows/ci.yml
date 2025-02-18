@@ -41,9 +41,11 @@ jobs:
         run: |
           poetry run coverage run -m pytest
           poetry run coverage report --fail-under=95
+          poetry run coverage xml
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: davidteather/proxyproviders
+          files: ./coverage.xml

@@ -6,3 +6,4 @@ poetry.lock
 build
 dist
 *.egg-info
+coverage.xml
