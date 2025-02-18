@@ -143,7 +143,7 @@
 </div>
 <section id="proxyproviders">
 <h2>ProxyProviders<a class="headerlink" href="#proxyproviders" title="Link to this heading"></a></h2>
-<p>Unified python interface for proxy provider APIs, supports BrightData, WebShare, and more.</p>
+<p>The Unified Python Proxy API with support for BrightData, WebShare, and more.</p>
 <p><a class="reference external" href="https://www.linkedin.com/in/davidteather/"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&amp;logo=linkedin&amp;logoColor=white&amp;style=flat-square" /></a> <a class="reference external" href="https://github.com/sponsors/davidteather"><img alt="Sponsor Me" src="https://img.shields.io/static/v1?label=Sponsor&amp;message=%E2%9D%A4&amp;logo=GitHub" /></a> <a class="reference external" href="https://github.com/davidteather/proxyproviders/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/davidteather/proxyproviders" /></a> <a class="reference external" href="https://github.com/davidteather/proxyproviders/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/davidteather/proxyproviders" /></a> <a class="reference external" href="https://pypi.org/project/proxyproviders/"><img alt="Downloads" src="https://pepy.tech/badge/proxyproviders" /></a> <img alt="" src="https://visitor-badge.laobi.icu/badge?page_id=davidteather.proxyproviders" /> <a class="reference external" href="https://discord.gg/yyPhbfma6f"><img alt="Support Server" src="https://img.shields.io/discord/783108952111579166.svg?color=7289da&amp;logo=discord&amp;style=flat-square" /></a></p>
 <section id="table-of-contents">
 <h3>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading"></a></h3>
@@ -234,7 +234,7 @@
 <section id="function-using-generic-proxyprovider">
 <h4>Function Using Generic ProxyProvider<a class="headerlink" href="#function-using-generic-proxyprovider" title="Link to this heading"></a></h4>
 <p>Since all proxy providers implement the same interface, we can make a function that allows us to easily swap out and utilize different providers. This is the main appeal of having a unified interface. It allows other modules to be provider agnostic, like my <a class="reference external" href="https://github.com/davidteather/TikTok-Api">TikTokAPI</a> package.</p>
-<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Webshare</span><span class="p">,</span> <span class="n">ProxyProvider</span><span class="p">,</span> <span class="n">ProxyConfig</span>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Webshare</span><span class="p">,</span> <span class="n">BrightData</span><span class="p">,</span> <span class="n">ProxyProvider</span><span class="p">,</span> <span class="n">ProxyConfig</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">some_function</span><span class="p">(</span><span class="n">provider</span><span class="p">:</span> <span class="n">ProxyProvider</span><span class="p">):</span>
     <span class="n">proxies</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">list_proxies</span><span class="p">()</span>
@@ -245,6 +245,34 @@
 
 <span class="n">some_function</span><span class="p">(</span><span class="n">webshare</span><span class="p">)</span>
 <span class="n">some_function</span><span class="p">(</span><span class="n">brightdata</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here’s a more meaningful example that takes the <code class="docutils literal notranslate"><span class="pre">Proxy</span></code> class and uses it to create a python requests http proxy.</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Webshare</span><span class="p">,</span> <span class="n">BrightData</span><span class="p">,</span> <span class="n">ProxyProvider</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">request_with_proxy</span><span class="p">(</span><span class="n">provider</span><span class="p">:</span> <span class="n">ProxyProvider</span><span class="p">):</span>
+    <span class="n">requests_proxy</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">provider</span><span class="p">:</span>
+        <span class="n">proxies</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">list_proxies</span><span class="p">()</span>
+
+        <span class="n">requests_proxy</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;http&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">password</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">proxy_address</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;https&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">password</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">proxy_address</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/ip&quot;</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="n">requests_proxy</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+<span class="n">webshare</span> <span class="o">=</span> <span class="n">Webshare</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your_api_key&quot;</span><span class="p">)</span>
+<span class="n">brightdata</span> <span class="o">=</span> <span class="n">BrightData</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your_api_key&quot;</span><span class="p">,</span> <span class="n">zone</span><span class="o">=</span><span class="s2">&quot;your_zone&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Your IP: </span><span class="si">{</span><span class="n">request_with_proxy</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Webshare: </span><span class="si">{</span><span class="n">request_with_proxy</span><span class="p">(</span><span class="n">webshare</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;BrightData: </span><span class="si">{</span><span class="n">request_with_proxy</span><span class="p">(</span><span class="n">brightdata</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
