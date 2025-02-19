@@ -1,7 +1,7 @@
-name: CI
+name: CI Main Branch With Integration
 
 on:
-  pull_request:
+  push:
     branches: [main]
 
 jobs:
@@ -33,6 +33,9 @@ jobs:
         run: poetry run mypy proxyproviders
 
       - name: Run unit tests with coverage
+        env:
+            RUN_INTEGRATION_TESTS: 1
+            WEBSHARE_API_KEY: ${{ secrets.WEBSHARE_API_KEY }}
         run: |
           poetry run coverage run -m pytest
           poetry run coverage report --fail-under=95
