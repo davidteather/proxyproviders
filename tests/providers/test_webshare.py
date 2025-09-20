@@ -1,13 +1,15 @@
 import os
+
 import pytest
 import responses
-from proxyproviders.providers.webshare import Webshare
+
 from proxyproviders.exceptions import (
+    ProxyConversionException,
     ProxyFetchException,
     ProxyInvalidResponseException,
-    ProxyConversionException,
 )
 from proxyproviders.models.proxy import Proxy
+from proxyproviders.providers.webshare import Webshare
 
 
 @pytest.fixture
@@ -123,15 +125,26 @@ def test_fetch_proxies_invalid_response(mock_webshare):
         mock_webshare._fetch_proxies()
 
 
+@responses.activate
 def test_sanity_check_webshare_structure(mock_webshare):
     """
     Sanity test: Ensures that the Webshare provider returns a list via list_proxies(),
     even if no proxies have been fetched.
     """
-    # Force internal state to simulate an empty proxy list
-    mock_webshare._proxies = []
+    # Mock an empty response
+    responses.add(
+        responses.GET,
+        "https://proxy.webshare.io/api/v2/proxy/list",
+        json={
+            "results": [],
+            "next": None,
+        },
+        status=200,
+    )
+
     result = mock_webshare.list_proxies()
     assert isinstance(result, list)
+    assert len(result) == 0
 
 
 @responses.activate

@@ -1,7 +1,9 @@
 import os
+
 import pytest
-from proxyproviders.providers.webshare import Webshare
+
 from proxyproviders.providers.brightdata import BrightData
+from proxyproviders.providers.webshare import Webshare
 from proxyproviders.proxy_provider import ProxyConfig
 
 

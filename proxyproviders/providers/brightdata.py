@@ -1,9 +1,10 @@
+from typing import Dict, List, Optional
+
 import requests
-from typing import List, Dict, Optional
-from ..proxy_provider import ProxyProvider, ProxyConfig
+
 from ..exceptions import ProxyFetchException, ProxyInvalidResponseException
 from ..models.proxy import Proxy
-import threading
+from ..proxy_provider import ProxyConfig, ProxyProvider
 
 
 class BrightData(ProxyProvider):

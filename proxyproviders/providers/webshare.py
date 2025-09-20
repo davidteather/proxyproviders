@@ -1,13 +1,15 @@
-import requests
 from datetime import datetime
-from typing import List, Dict, Optional
-from ..proxy_provider import ProxyProvider, ProxyConfig
+from typing import Dict, List, Optional
+
+import requests
+
 from ..exceptions import (
-    ProxyFetchException,
     ProxyConversionException,
+    ProxyFetchException,
     ProxyInvalidResponseException,
 )
 from ..models.proxy import Proxy
+from ..proxy_provider import ProxyConfig, ProxyProvider
 
 
 class Webshare(ProxyProvider):
@@ -85,7 +87,7 @@ class Webshare(ProxyProvider):
             data = response.json()
 
             proxy_data = data.get("results")
-            if not proxy_data:
+            if proxy_data is None:
                 raise ProxyInvalidResponseException(response.text)
 
             all_proxies.extend([self._convert_to_proxy(proxy) for proxy in proxy_data])

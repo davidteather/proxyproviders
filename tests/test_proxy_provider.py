@@ -1,8 +1,10 @@
-import pytest
-from proxyproviders.proxy_provider import ProxyProvider, ProxyConfig
 from datetime import timedelta
 from typing import List
+
+import pytest
+
 from proxyproviders.models.proxy import Proxy
+from proxyproviders.proxy_provider import ProxyConfig, ProxyProvider
 
 
 class MockProxyProvider(ProxyProvider):
