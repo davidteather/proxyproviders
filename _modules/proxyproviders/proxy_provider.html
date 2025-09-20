@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>proxyproviders.proxy_provider &mdash; ProxyProviders 0.1.1 documentation</title>
+  <title>proxyproviders.proxy_provider &mdash; ProxyProviders 0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
@@ -13,7 +13,7 @@
     <link rel="canonical" href="https://davidteather.github.io/proxyproviders/_modules/proxyproviders/proxy_provider.html" />
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../../_static/documentation_options.js?v=938c9ccc"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -67,12 +67,16 @@
            <div itemprop="articleBody">
              
   <h1>Source code for proxyproviders.proxy_provider</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.models.proxy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Proxy</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models.proxy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Proxy</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Algorithm</span>
 
 
 <div class="viewcode-block" id="ProxyConfig">
@@ -118,6 +122,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_refresh</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
 
+        <span class="c1"># Initialize default algorithm (RoundRobin for state persistence)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">RoundRobin</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_algorithm</span> <span class="o">=</span> <span class="n">RoundRobin</span><span class="p">()</span>
+
 <div class="viewcode-block" id="ProxyProvider.list_proxies">
 <a class="viewcode-back" href="../../proxyprovider.html#proxyproviders.proxy_provider.ProxyProvider.list_proxies">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">list_proxies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force_refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Proxy</span><span class="p">]:</span>
@@ -133,6 +142,42 @@
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proxies</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxies</span> <span class="k">else</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="ProxyProvider.get_proxy">
+<a class="viewcode-back" href="../../proxyprovider.html#proxyproviders.proxy_provider.ProxyProvider.get_proxy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;Algorithm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Proxy</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a single proxy using the specified selection algorithm.</span>
+
+<span class="sd">        :param algorithm: Selection algorithm to use. If None, uses the provider&#39;s default RoundRobin algorithm.</span>
+<span class="sd">        :return: Selected proxy</span>
+<span class="sd">        :raises ValueError: If no proxies are available</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; from proxyproviders import Webshare</span>
+<span class="sd">            &gt;&gt;&gt; from proxyproviders.algorithms import Random, RoundRobin</span>
+<span class="sd">            &gt;&gt;&gt;</span>
+<span class="sd">            &gt;&gt;&gt; provider = Webshare(api_key=&quot;your-key&quot;)</span>
+<span class="sd">            &gt;&gt;&gt;</span>
+<span class="sd">            &gt;&gt;&gt; # Uses default RoundRobin (cycles through proxies)</span>
+<span class="sd">            &gt;&gt;&gt; proxy = provider.get_proxy()</span>
+<span class="sd">            &gt;&gt;&gt;</span>
+<span class="sd">            &gt;&gt;&gt; # Uses Random selection</span>
+<span class="sd">            &gt;&gt;&gt; proxy = provider.get_proxy(Random())</span>
+<span class="sd">            &gt;&gt;&gt;</span>
+<span class="sd">            &gt;&gt;&gt; # One-liner with requests</span>
+<span class="sd">            &gt;&gt;&gt; import requests</span>
+<span class="sd">            &gt;&gt;&gt; from proxyproviders.models.proxy import ProxyFormat</span>
+<span class="sd">            &gt;&gt;&gt; requests.get(&quot;https://httpbin.org/ip&quot;, proxies=provider.get_proxy().format(ProxyFormat.REQUESTS))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">proxies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_proxies</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">proxies</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No proxies available from provider&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">algorithm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">algorithm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_algorithm</span>
+
+        <span class="k">return</span> <span class="n">algorithm</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">proxies</span><span class="p">)</span></div>
 
 
     <span class="c1">#</span>

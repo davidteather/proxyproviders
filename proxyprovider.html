@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ProxyProvider Shared Interface &mdash; ProxyProviders 0.1.1 documentation</title>
+  <title>ProxyProvider Shared Interface &mdash; ProxyProviders 0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -14,7 +14,7 @@
     <link rel="canonical" href="https://davidteather.github.io/proxyproviders/proxyprovider.html" />
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="_static/documentation_options.js?v=938c9ccc"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -50,6 +50,7 @@
 </li>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider"><code class="docutils literal notranslate"><span class="pre">ProxyProvider</span></code></a><ul>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.list_proxies"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.list_proxies()</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.get_proxy"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.get_proxy()</span></code></a></li>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.should_refresh"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.should_refresh()</span></code></a></li>
 </ul>
 </li>
@@ -126,6 +127,41 @@ If a format function is provided, it applies that function to each proxy.</p>
 <dd class="field-odd"><p><strong>force_refresh</strong> – If True, fetches new proxies even if the list is not considered stale.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyProvider.get_proxy">
+<span class="sig-name descname"><span class="pre">get_proxy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Algorithm</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="models.html#proxyproviders.models.proxy.Proxy" title="proxyproviders.models.proxy.Proxy"><span class="pre">Proxy</span></a></span></span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyProvider.get_proxy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyProvider.get_proxy" title="Link to this definition"></a></dt>
+<dd><p>Get a single proxy using the specified selection algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>algorithm</strong> – Selection algorithm to use. If None, uses the provider’s default RoundRobin algorithm.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Selected proxy</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If no proxies are available</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Webshare</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Random</span><span class="p">,</span> <span class="n">RoundRobin</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">provider</span> <span class="o">=</span> <span class="n">Webshare</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Uses default RoundRobin (cycles through proxies)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Uses Random selection</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">(</span><span class="n">Random</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># One-liner with requests</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders.models.proxy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProxyFormat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/ip&quot;</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">()</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ProxyFormat</span><span class="o">.</span><span class="n">REQUESTS</span><span class="p">))</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">

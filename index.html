@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ProxyProviders Quick Start Documentation &mdash; ProxyProviders 0.1.1 documentation</title>
+  <title>ProxyProviders Quick Start Documentation &mdash; ProxyProviders 0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -14,7 +14,7 @@
     <link rel="canonical" href="https://davidteather.github.io/proxyproviders/index.html" />
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="_static/documentation_options.js?v=938c9ccc"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -58,7 +58,13 @@
 <li><a class="reference internal" href="#choose-a-proxy-provider">Choose a Proxy Provider</a></li>
 <li><a class="reference internal" href="#basic-example">Basic Example</a></li>
 <li><a class="reference internal" href="#using-proxyconfig">Using ProxyConfig</a></li>
-<li><a class="reference internal" href="#function-using-generic-proxyprovider">Function Using Generic ProxyProvider</a></li>
+<li><a class="reference internal" href="#function-using-generic-proxyprovider">Function Using Generic ProxyProvider</a><ul>
+<li><a class="reference internal" href="#simple-usage">Simple Usage</a></li>
+<li><a class="reference internal" href="#built-in-algorithms">Built-in Algorithms</a></li>
+<li><a class="reference internal" href="#algorithm-state-management">Algorithm State Management</a></li>
+<li><a class="reference internal" href="#custom-algorithms">Custom Algorithms</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#making-your-own-proxy-provider">Making Your Own Proxy Provider</a></li>
 </ul>
 </li>
@@ -73,6 +79,7 @@
 </li>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider"><code class="docutils literal notranslate"><span class="pre">ProxyProvider</span></code></a><ul>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.list_proxies"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.list_proxies()</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.get_proxy"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.get_proxy()</span></code></a></li>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.should_refresh"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.should_refresh()</span></code></a></li>
 </ul>
 </li>
@@ -90,6 +97,14 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#module-proxyproviders.models.proxy">ProxyProviders Models</a><ul>
+<li><a class="reference internal" href="#proxyproviders.models.proxy.ProxyFormat"><code class="docutils literal notranslate"><span class="pre">ProxyFormat</span></code></a><ul>
+<li><a class="reference internal" href="#proxyproviders.models.proxy.ProxyFormat.REQUESTS"><code class="docutils literal notranslate"><span class="pre">ProxyFormat.REQUESTS</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.models.proxy.ProxyFormat.CURL"><code class="docutils literal notranslate"><span class="pre">ProxyFormat.CURL</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.models.proxy.ProxyFormat.HTTPX"><code class="docutils literal notranslate"><span class="pre">ProxyFormat.HTTPX</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.models.proxy.ProxyFormat.AIOHTTP"><code class="docutils literal notranslate"><span class="pre">ProxyFormat.AIOHTTP</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.models.proxy.ProxyFormat.URL"><code class="docutils literal notranslate"><span class="pre">ProxyFormat.URL</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#proxyproviders.models.proxy.Proxy"><code class="docutils literal notranslate"><span class="pre">Proxy</span></code></a><ul>
 <li><a class="reference internal" href="#proxyproviders.models.proxy.Proxy.id"><code class="docutils literal notranslate"><span class="pre">Proxy.id</span></code></a></li>
 <li><a class="reference internal" href="#proxyproviders.models.proxy.Proxy.username"><code class="docutils literal notranslate"><span class="pre">Proxy.username</span></code></a></li>
@@ -100,6 +115,8 @@
 <li><a class="reference internal" href="#proxyproviders.models.proxy.Proxy.city_name"><code class="docutils literal notranslate"><span class="pre">Proxy.city_name</span></code></a></li>
 <li><a class="reference internal" href="#proxyproviders.models.proxy.Proxy.created_at"><code class="docutils literal notranslate"><span class="pre">Proxy.created_at</span></code></a></li>
 <li><a class="reference internal" href="#proxyproviders.models.proxy.Proxy.protocols"><code class="docutils literal notranslate"><span class="pre">Proxy.protocols</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.models.proxy.Proxy.to_url"><code class="docutils literal notranslate"><span class="pre">Proxy.to_url()</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.models.proxy.Proxy.format"><code class="docutils literal notranslate"><span class="pre">Proxy.format()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -208,6 +225,23 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">proxies</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>For simple usage, you can get a proxy and use it immediately:</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Webshare</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+
+<span class="n">provider</span> <span class="o">=</span> <span class="n">Webshare</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span>
+
+<span class="c1"># Get a proxy (uses RoundRobin by default) and use it with requests</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders.models.proxy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProxyFormat</span>
+
+<span class="n">proxy</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">()</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/ip&quot;</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="n">proxy</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ProxyFormat</span><span class="o">.</span><span class="n">REQUESTS</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+
+<span class="c1"># Or in one-line</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/ip&quot;</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">()</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ProxyFormat</span><span class="o">.</span><span class="n">REQUESTS</span><span class="p">))</span>
+</pre></div>
+</div>
 <p>Each provider has their own custom options, the <code class="docutils literal notranslate"><span class="pre">Webshare</span></code> class lets you specify url params according to their <a class="reference external" href="https://apidocs.webshare.io/proxy-list/list#parameters">api spec</a>, here’s an example which will only return proxies that are based in the US.</p>
 <div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="n">proxy_provider</span> <span class="o">=</span> <span class="n">Webshare</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;country_code_in&quot;</span><span class="p">:</span> <span class="s2">&quot;US&quot;</span><span class="p">})</span>
 </pre></div>
@@ -248,33 +282,92 @@
 </pre></div>
 </div>
 <p>Here’s a more meaningful example that takes the <code class="docutils literal notranslate"><span class="pre">Proxy</span></code> class and uses it to create a python requests http proxy.</p>
-<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Webshare</span><span class="p">,</span> <span class="n">BrightData</span><span class="p">,</span> <span class="n">ProxyProvider</span>
+<section id="simple-usage">
+<h5>Simple Usage<a class="headerlink" href="#simple-usage" title="Link to this heading"></a></h5>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Webshare</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Random</span><span class="p">,</span> <span class="n">RoundRobin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders.models.proxy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProxyFormat</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
+<span class="n">provider</span> <span class="o">=</span> <span class="n">Webshare</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your_api_key&quot;</span><span class="p">)</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">request_with_proxy</span><span class="p">(</span><span class="n">provider</span><span class="p">:</span> <span class="n">ProxyProvider</span><span class="p">):</span>
-    <span class="n">requests_proxy</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="c1"># Get proxy using default RoundRobin and make request</span>
+<span class="n">proxy</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">()</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/ip&quot;</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="n">proxy</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ProxyFormat</span><span class="o">.</span><span class="n">REQUESTS</span><span class="p">))</span>
 
-    <span class="k">if</span> <span class="n">provider</span><span class="p">:</span>
-        <span class="n">proxies</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">list_proxies</span><span class="p">()</span>
-
-        <span class="n">requests_proxy</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;http&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">password</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">proxy_address</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;https&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">password</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">proxy_address</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
-
-    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/ip&quot;</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="n">requests_proxy</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-
-<span class="n">webshare</span> <span class="o">=</span> <span class="n">Webshare</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your_api_key&quot;</span><span class="p">)</span>
-<span class="n">brightdata</span> <span class="o">=</span> <span class="n">BrightData</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your_api_key&quot;</span><span class="p">,</span> <span class="n">zone</span><span class="o">=</span><span class="s2">&quot;your_zone&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Your IP: </span><span class="si">{</span><span class="n">request_with_proxy</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Webshare: </span><span class="si">{</span><span class="n">request_with_proxy</span><span class="p">(</span><span class="n">webshare</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;BrightData: </span><span class="si">{</span><span class="n">request_with_proxy</span><span class="p">(</span><span class="n">brightdata</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># Or in one-line</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/ip&quot;</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">()</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ProxyFormat</span><span class="o">.</span><span class="n">REQUESTS</span><span class="p">))</span>
 </pre></div>
 </div>
+</section>
+<section id="built-in-algorithms">
+<h5>Built-in Algorithms<a class="headerlink" href="#built-in-algorithms" title="Link to this heading"></a></h5>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Webshare</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Random</span><span class="p">,</span> <span class="n">RoundRobin</span><span class="p">,</span> <span class="n">First</span>
+
+<span class="n">provider</span> <span class="o">=</span> <span class="n">Webshare</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your_api_key&quot;</span><span class="p">)</span>
+
+<span class="c1"># Default: RoundRobin (cycles through proxies for load balancing)</span>
+<span class="n">proxy</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">()</span>
+
+<span class="c1"># Random selection</span>
+<span class="n">proxy</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">(</span><span class="n">Random</span><span class="p">())</span>
+
+<span class="c1"># Always first proxy (deterministic)</span>
+<span class="n">proxy</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">(</span><span class="n">First</span><span class="p">())</span>
+
+<span class="c1"># Algorithm can maintain state when reused</span>
+<span class="n">round_robin</span> <span class="o">=</span> <span class="n">RoundRobin</span><span class="p">()</span>
+<span class="n">proxy1</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">(</span><span class="n">round_robin</span><span class="p">)</span>
+<span class="n">proxy2</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">(</span><span class="n">round_robin</span><span class="p">)</span>  <span class="c1"># Next in sequence</span>
+</pre></div>
+</div>
+</section>
+<section id="algorithm-state-management">
+<h5>Algorithm State Management<a class="headerlink" href="#algorithm-state-management" title="Link to this heading"></a></h5>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Webshare</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">RoundRobin</span><span class="p">,</span> <span class="n">Random</span>
+
+<span class="n">provider</span> <span class="o">=</span> <span class="n">Webshare</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your_api_key&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create reusable algorithm for state management</span>
+<span class="n">round_robin</span> <span class="o">=</span> <span class="n">RoundRobin</span><span class="p">()</span>  <span class="c1"># Maintains state across calls</span>
+<span class="n">random_algo</span> <span class="o">=</span> <span class="n">Random</span><span class="p">()</span>      <span class="c1"># Stateless but reusable</span>
+
+<span class="c1"># Each call to round_robin will cycle to next proxy</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">proxy</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">(</span><span class="n">round_robin</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RoundRobin </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">proxy</span><span class="o">.</span><span class="n">proxy_address</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Provider also maintains its own default RoundRobin state when not specified</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">proxy</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">()</span>  <span class="c1"># Uses provider&#39;s default RoundRobin</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Default </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">proxy</span><span class="o">.</span><span class="n">proxy_address</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-algorithms">
+<h5>Custom Algorithms<a class="headerlink" href="#custom-algorithms" title="Link to this heading"></a></h5>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Algorithm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders.models.proxy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Proxy</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">USProxyAlgorithm</span><span class="p">(</span><span class="n">Algorithm</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prefers US proxies, falls back to first available.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proxies</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Proxy</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Proxy</span><span class="p">:</span>
+        <span class="c1"># Try to find a US proxy</span>
+        <span class="k">for</span> <span class="n">proxy</span> <span class="ow">in</span> <span class="n">proxies</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">proxy</span><span class="o">.</span><span class="n">country_code</span> <span class="o">==</span> <span class="s2">&quot;US&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">proxy</span>
+        <span class="c1"># Fall back to first proxy</span>
+        <span class="k">return</span> <span class="n">proxies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Use your custom algorithm</span>
+<span class="n">proxy</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">(</span><span class="n">USProxyAlgorithm</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="making-your-own-proxy-provider">
 <h4>Making Your Own Proxy Provider<a class="headerlink" href="#making-your-own-proxy-provider" title="Link to this heading"></a></h4>
@@ -365,6 +458,41 @@ If a format function is provided, it applies that function to each proxy.</p>
 <dd class="field-odd"><p><strong>force_refresh</strong> – If True, fetches new proxies even if the list is not considered stale.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyProvider.get_proxy">
+<span class="sig-name descname"><span class="pre">get_proxy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Algorithm</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="models.html#proxyproviders.models.proxy.Proxy" title="proxyproviders.models.proxy.Proxy"><span class="pre">Proxy</span></a></span></span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyProvider.get_proxy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyProvider.get_proxy" title="Link to this definition"></a></dt>
+<dd><p>Get a single proxy using the specified selection algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>algorithm</strong> – Selection algorithm to use. If None, uses the provider’s default RoundRobin algorithm.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Selected proxy</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If no proxies are available</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Webshare</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Random</span><span class="p">,</span> <span class="n">RoundRobin</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">provider</span> <span class="o">=</span> <span class="n">Webshare</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Uses default RoundRobin (cycles through proxies)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Uses Random selection</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">(</span><span class="n">Random</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># One-liner with requests</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders.models.proxy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProxyFormat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/ip&quot;</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">()</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ProxyFormat</span><span class="o">.</span><span class="n">REQUESTS</span><span class="p">))</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -531,6 +659,43 @@ If a format function is provided, it applies that function to each proxy.</p>
 <section id="module-proxyproviders.models.proxy">
 <span id="proxyproviders-models"></span><span id="models"></span><h1>ProxyProviders Models<a class="headerlink" href="#module-proxyproviders.models.proxy" title="Link to this heading"></a></h1>
 <dl class="py class">
+<dt class="sig sig-object py" id="proxyproviders.models.proxy.ProxyFormat">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">proxyproviders.models.proxy.</span></span><span class="sig-name descname"><span class="pre">ProxyFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/proxyproviders/models/proxy.html#ProxyFormat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.models.proxy.ProxyFormat" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Supported proxy output formats.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="proxyproviders.models.proxy.ProxyFormat.REQUESTS">
+<span class="sig-name descname"><span class="pre">REQUESTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'requests'</span></em><a class="headerlink" href="#proxyproviders.models.proxy.ProxyFormat.REQUESTS" title="Link to this definition"></a></dt>
+<dd><p>Requests format, for use in requests library HTTP calls</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="proxyproviders.models.proxy.ProxyFormat.CURL">
+<span class="sig-name descname"><span class="pre">CURL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'curl'</span></em><a class="headerlink" href="#proxyproviders.models.proxy.ProxyFormat.CURL" title="Link to this definition"></a></dt>
+<dd><p>CURL format, for use in curl commands</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="proxyproviders.models.proxy.ProxyFormat.HTTPX">
+<span class="sig-name descname"><span class="pre">HTTPX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'httpx'</span></em><a class="headerlink" href="#proxyproviders.models.proxy.ProxyFormat.HTTPX" title="Link to this definition"></a></dt>
+<dd><p>HTTPX format, for use in httpx library HTTP calls</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="proxyproviders.models.proxy.ProxyFormat.AIOHTTP">
+<span class="sig-name descname"><span class="pre">AIOHTTP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'aiohttp'</span></em><a class="headerlink" href="#proxyproviders.models.proxy.ProxyFormat.AIOHTTP" title="Link to this definition"></a></dt>
+<dd><p>AIOHTTP format, for use in aiohttp library HTTP calls</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="proxyproviders.models.proxy.ProxyFormat.URL">
+<span class="sig-name descname"><span class="pre">URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'url'</span></em><a class="headerlink" href="#proxyproviders.models.proxy.ProxyFormat.URL" title="Link to this definition"></a></dt>
+<dd><p>URL format, for use in URL strings</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="proxyproviders.models.proxy.Proxy">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">proxyproviders.models.proxy.</span></span><span class="sig-name descname"><span class="pre">Proxy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">city_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_at</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/proxyproviders/models/proxy.html#Proxy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.models.proxy.Proxy" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -587,6 +752,61 @@ If a format function is provided, it applies that function to each proxy.</p>
 <dt class="sig sig-object py" id="proxyproviders.models.proxy.Proxy.protocols">
 <span class="sig-name descname"><span class="pre">protocols</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#proxyproviders.models.proxy.Proxy.protocols" title="Link to this definition"></a></dt>
 <dd><p>A list of connection protocols supported by the proxy, e.g., [‘http’, ‘https’]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.models.proxy.Proxy.to_url">
+<span class="sig-name descname"><span class="pre">to_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protocol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'http'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/proxyproviders/models/proxy.html#Proxy.to_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.models.proxy.Proxy.to_url" title="Link to this definition"></a></dt>
+<dd><p>Convert proxy to URL format for use with HTTP clients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>protocol</strong> – The protocol to use in the URL (default: ‘http’)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Proxy URL in format ‘protocol://username:password&#64;host:port’</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">to_url</span><span class="p">()</span>
+<span class="go">&#39;http://user:pass@192.168.1.1:8080&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">to_url</span><span class="p">(</span><span class="s1">&#39;https&#39;</span><span class="p">)</span>
+<span class="go">&#39;https://user:pass@192.168.1.1:8080&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.models.proxy.Proxy.format">
+<span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">format_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="models.html#proxyproviders.models.proxy.ProxyFormat" title="proxyproviders.models.proxy.ProxyFormat"><span class="pre">ProxyFormat</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ProxyFormat.URL</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/proxyproviders/models/proxy.html#Proxy.format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.models.proxy.Proxy.format" title="Link to this definition"></a></dt>
+<dd><p>Format proxy for different HTTP clients and tools.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>format_type</strong> – Output format (default: URL string)</p></li>
+<li><p><strong>kwargs</strong> – Format-specific options</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Formatted proxy data</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">format</span><span class="p">()</span>  <span class="c1"># Default URL string</span>
+<span class="go">&#39;http://user:pass@192.168.1.1:8080&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ProxyFormat</span><span class="o">.</span><span class="n">REQUESTS</span><span class="p">)</span>
+<span class="go">{&#39;http&#39;: &#39;http://user:pass@192.168.1.1:8080&#39;, &#39;https&#39;: &#39;http://user:pass@192.168.1.1:8080&#39;}</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;curl&#39;</span><span class="p">)</span>  <span class="c1"># String also works</span>
+<span class="go">[&#39;-x&#39;, &#39;http://user:pass@192.168.1.1:8080&#39;]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ProxyFormat</span><span class="o">.</span><span class="n">HTTPX</span><span class="p">)</span>
+<span class="go">{&#39;http://&#39;: &#39;http://user:pass@192.168.1.1:8080&#39;, &#39;https://&#39;: &#39;http://user:pass@192.168.1.1:8080&#39;}</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </dd></dl>
