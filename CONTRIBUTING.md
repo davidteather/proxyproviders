@@ -12,7 +12,7 @@ This guide shows you how to add new proxy providers and test them properly.
 
 ### Prerequisites
 
-- Python 3.8 or higher
+- Python 3.9 or higher
 - Git
 
 ## Running Tests

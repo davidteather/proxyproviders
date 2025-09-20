@@ -32,9 +32,9 @@ jobs:
       - name: Type check with mypy
         run: poetry run mypy proxyproviders
 
-      - name: Run unit tests with coverage
+      - name: Run unit tests with coverage (excluding integration tests)
         run: |
-          poetry run coverage run -m pytest
+          poetry run coverage run -m pytest tests/ --ignore=tests/integration -v
           poetry run coverage report --fail-under=95
           poetry run coverage xml
 
