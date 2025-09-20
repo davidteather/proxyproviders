@@ -87,7 +87,7 @@ class Webshare(ProxyProvider):
             data = response.json()
 
             proxy_data = data.get("results")
-            if not proxy_data:
+            if proxy_data is None:
                 raise ProxyInvalidResponseException(response.text)
 
             all_proxies.extend([self._convert_to_proxy(proxy) for proxy in proxy_data])
