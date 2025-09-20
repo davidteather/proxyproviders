@@ -1,10 +1,7 @@
 import pytest
 import responses
 
-from proxyproviders.exceptions import (
-    ProxyFetchException,
-    ProxyInvalidResponseException,
-)
+from proxyproviders.exceptions import ProxyFetchException, ProxyInvalidResponseException
 
 
 @responses.activate

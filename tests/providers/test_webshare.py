@@ -1,13 +1,15 @@
 import os
+
 import pytest
 import responses
-from proxyproviders.providers.webshare import Webshare
+
 from proxyproviders.exceptions import (
+    ProxyConversionException,
     ProxyFetchException,
     ProxyInvalidResponseException,
-    ProxyConversionException,
 )
 from proxyproviders.models.proxy import Proxy
+from proxyproviders.providers.webshare import Webshare
 
 
 @pytest.fixture

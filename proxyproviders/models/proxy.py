@@ -1,6 +1,26 @@
 from dataclasses import dataclass
-from typing import Optional, List
 from datetime import datetime
+from enum import Enum
+from typing import Dict, List, Optional, Union
+
+
+class ProxyFormat(Enum):
+    """Supported proxy output formats."""
+
+    REQUESTS = "requests"
+    """Requests format, for use in requests library HTTP calls"""
+
+    CURL = "curl"
+    """CURL format, for use in curl commands"""
+
+    HTTPX = "httpx"
+    """HTTPX format, for use in httpx library HTTP calls"""
+
+    AIOHTTP = "aiohttp"
+    """AIOHTTP format, for use in aiohttp library HTTP calls"""
+
+    URL = "url"
+    """URL format, for use in URL strings"""
 
 
 @dataclass
@@ -33,3 +53,66 @@ class Proxy:
 
     protocols: Optional[List[str]] = None
     """A list of connection protocols supported by the proxy, e.g., ['http', 'https']"""
+
+    def to_url(self, protocol: str = "http") -> str:
+        """Convert proxy to URL format for use with HTTP clients.
+
+        :param protocol: The protocol to use in the URL (default: 'http')
+        :return: Proxy URL in format 'protocol://username:password@host:port'
+
+        Example:
+            >>> proxy.to_url()
+            'http://user:pass@192.168.1.1:8080'
+            >>> proxy.to_url('https')
+            'https://user:pass@192.168.1.1:8080'
+        """
+        return f"{protocol}://{self.username}:{self.password}@{self.proxy_address}:{self.port}"
+
+    def format(
+        self, format_type: Union[ProxyFormat, str] = ProxyFormat.URL, **kwargs
+    ) -> Union[str, Dict[str, str], List[str]]:
+        """Format proxy for different HTTP clients and tools.
+
+        :param format_type: Output format (default: URL string)
+        :param kwargs: Format-specific options
+        :return: Formatted proxy data
+
+        Examples:
+            >>> proxy.format()  # Default URL string
+            'http://user:pass@192.168.1.1:8080'
+
+            >>> proxy.format(ProxyFormat.REQUESTS)
+            {'http': 'http://user:pass@192.168.1.1:8080', 'https': 'http://user:pass@192.168.1.1:8080'}
+
+            >>> proxy.format('curl')  # String also works
+            ['-x', 'http://user:pass@192.168.1.1:8080']
+
+            >>> proxy.format(ProxyFormat.HTTPX)
+            {'http://': 'http://user:pass@192.168.1.1:8080', 'https://': 'http://user:pass@192.168.1.1:8080'}
+        """
+        if isinstance(format_type, str):
+            format_type = ProxyFormat(format_type)
+
+        if format_type == ProxyFormat.URL:
+            protocol = kwargs.get("protocol", "http")
+            return self.to_url(protocol)
+
+        elif format_type == ProxyFormat.REQUESTS:
+            protocols = kwargs.get("protocols", self.protocols or ["http", "https"])
+            proxy_url = self.to_url("http")
+            return {protocol: proxy_url for protocol in protocols}
+
+        elif format_type == ProxyFormat.CURL:
+            return ["-x", self.to_url("http")]
+
+        elif format_type == ProxyFormat.HTTPX:
+            # httpx uses 'http://' and 'https://' as keys
+            proxy_url = self.to_url("http")
+            return {"http://": proxy_url, "https://": proxy_url}
+
+        elif format_type == ProxyFormat.AIOHTTP:
+            # aiohttp takes a single URL string
+            return self.to_url("http")
+
+        else:
+            raise ValueError(f"Unsupported format: {format_type}")

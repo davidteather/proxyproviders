@@ -1,5 +1,7 @@
 import os
+
 import pytest
+
 from proxyproviders.providers.webshare import Webshare
 
 # Skip integration tests unless explicitly enabled

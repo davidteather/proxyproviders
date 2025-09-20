@@ -62,6 +62,24 @@ proxies = proxy_provider.list_proxies()
 print(proxies)
 ```
 
+For simple usage, you can get a proxy and use it immediately:
+```py
+from proxyproviders import Webshare
+import requests
+
+provider = Webshare(api_key="your-api-key")
+
+# Get a proxy (uses RoundRobin by default) and use it with requests
+from proxyproviders.models.proxy import ProxyFormat
+
+proxy = provider.get_proxy()
+response = requests.get("https://httpbin.org/ip", proxies=proxy.format(ProxyFormat.REQUESTS))
+print(response.json())
+
+# Or in one-line
+response = requests.get("https://httpbin.org/ip", proxies=provider.get_proxy().format(ProxyFormat.REQUESTS))
+```
+
 Each provider has their own custom options, the `Webshare` class lets you specify url params according to their [api spec](https://apidocs.webshare.io/proxy-list/list#parameters), here's an example which will only return proxies that are based in the US.
 
 ```py
@@ -107,32 +125,86 @@ some_function(brightdata)
 
 Here's a more meaningful example that takes the `Proxy` class and uses it to create a python requests http proxy.
 
+#### Simple Usage
 ```py
-from proxyproviders import Webshare, BrightData, ProxyProvider
+from proxyproviders import Webshare
+from proxyproviders.algorithms import Random, RoundRobin
+from proxyproviders.models.proxy import ProxyFormat
 import requests
-import os
 
+provider = Webshare(api_key="your_api_key")
 
-def request_with_proxy(provider: ProxyProvider):
-    requests_proxy = None
+# Get proxy using default RoundRobin and make request
+proxy = provider.get_proxy()
+response = requests.get("https://httpbin.org/ip", proxies=proxy.format(ProxyFormat.REQUESTS))
 
-    if provider:
-        proxies = provider.list_proxies()
+# Or in one-line
+response = requests.get("https://httpbin.org/ip", proxies=provider.get_proxy().format(ProxyFormat.REQUESTS))
+```
 
-        requests_proxy = {
-            "http": f"http://{proxies[0].username}:{proxies[0].password}@{proxies[0].proxy_address}:{proxies[0].port}",
-            "https": f"http://{proxies[0].username}:{proxies[0].password}@{proxies[0].proxy_address}:{proxies[0].port}",
-        }
+#### Built-in Algorithms
+```py
+from proxyproviders import Webshare
+from proxyproviders.algorithms import Random, RoundRobin, First
 
-    r = requests.get("https://httpbin.org/ip", proxies=requests_proxy)
-    return r.json()
+provider = Webshare(api_key="your_api_key")
 
-webshare = Webshare(api_key="your_api_key")
-brightdata = BrightData(api_key="your_api_key", zone="your_zone")
+# Default: RoundRobin (cycles through proxies for load balancing)
+proxy = provider.get_proxy()
 
-print(f"Your IP: {request_with_proxy(None)}")
-print(f"Webshare: {request_with_proxy(webshare)}")
-print(f"BrightData: {request_with_proxy(brightdata)}")
+# Random selection
+proxy = provider.get_proxy(Random())
+
+# Always first proxy (deterministic)
+proxy = provider.get_proxy(First())
+
+# Algorithm can maintain state when reused
+round_robin = RoundRobin()
+proxy1 = provider.get_proxy(round_robin)
+proxy2 = provider.get_proxy(round_robin)  # Next in sequence
+```
+
+#### Algorithm State Management
+```py
+from proxyproviders import Webshare
+from proxyproviders.algorithms import RoundRobin, Random
+
+provider = Webshare(api_key="your_api_key")
+
+# Create reusable algorithm for state management
+round_robin = RoundRobin()  # Maintains state across calls
+random_algo = Random()      # Stateless but reusable
+
+# Each call to round_robin will cycle to next proxy
+for i in range(3):
+    proxy = provider.get_proxy(round_robin)
+    print(f"RoundRobin {i}: {proxy.proxy_address}")
+
+# Provider also maintains its own default RoundRobin state when not specified
+for i in range(3):
+    proxy = provider.get_proxy()  # Uses provider's default RoundRobin
+    print(f"Default {i}: {proxy.proxy_address}")
+```
+
+#### Custom Algorithms
+```py
+from proxyproviders.algorithms import Algorithm
+from typing import List
+from proxyproviders.models.proxy import Proxy
+
+class USProxyAlgorithm(Algorithm):
+    """Prefers US proxies, falls back to first available."""
+
+    def select(self, proxies: List[Proxy]) -> Proxy:
+        # Try to find a US proxy
+        for proxy in proxies:
+            if proxy.country_code == "US":
+                return proxy
+        # Fall back to first proxy
+        return proxies[0]
+
+# Use your custom algorithm
+proxy = provider.get_proxy(USProxyAlgorithm())
 ```
 
 ### Making Your Own Proxy Provider

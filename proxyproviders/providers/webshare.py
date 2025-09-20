@@ -1,13 +1,15 @@
-import requests
 from datetime import datetime
-from typing import List, Dict, Optional
-from ..proxy_provider import ProxyProvider, ProxyConfig
+from typing import Dict, List, Optional
+
+import requests
+
 from ..exceptions import (
-    ProxyFetchException,
     ProxyConversionException,
+    ProxyFetchException,
     ProxyInvalidResponseException,
 )
 from ..models.proxy import Proxy
+from ..proxy_provider import ProxyConfig, ProxyProvider
 
 
 class Webshare(ProxyProvider):

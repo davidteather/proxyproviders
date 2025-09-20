@@ -1,9 +1,13 @@
-from abc import ABC, abstractmethod
-from datetime import datetime
-from typing import List, Optional
-from .models.proxy import Proxy
-from dataclasses import dataclass
 import threading
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from datetime import datetime
+from typing import TYPE_CHECKING, List, Optional
+
+from .models.proxy import Proxy
+
+if TYPE_CHECKING:
+    from .algorithms import Algorithm
 
 
 @dataclass
@@ -44,6 +48,11 @@ class ProxyProvider(ABC):
         self._last_refresh: Optional[datetime] = None
         self._lock = threading.Lock()
 
+        # Initialize default algorithm (RoundRobin for state persistence)
+        from .algorithms import RoundRobin
+
+        self._default_algorithm = RoundRobin()
+
     def list_proxies(self, force_refresh: bool = False) -> List[Proxy]:
         """
         Returns the stored proxies.
@@ -57,6 +66,39 @@ class ProxyProvider(ABC):
 
         with self._lock:
             return list(self._proxies) if self._proxies else []
+
+    def get_proxy(self, algorithm: Optional["Algorithm"] = None) -> Proxy:
+        """Get a single proxy using the specified selection algorithm.
+
+        :param algorithm: Selection algorithm to use. If None, uses the provider's default RoundRobin algorithm.
+        :return: Selected proxy
+        :raises ValueError: If no proxies are available
+
+        Example:
+            >>> from proxyproviders import Webshare
+            >>> from proxyproviders.algorithms import Random, RoundRobin
+            >>>
+            >>> provider = Webshare(api_key="your-key")
+            >>>
+            >>> # Uses default RoundRobin (cycles through proxies)
+            >>> proxy = provider.get_proxy()
+            >>>
+            >>> # Uses Random selection
+            >>> proxy = provider.get_proxy(Random())
+            >>>
+            >>> # One-liner with requests
+            >>> import requests
+            >>> from proxyproviders.models.proxy import ProxyFormat
+            >>> requests.get("https://httpbin.org/ip", proxies=provider.get_proxy().format(ProxyFormat.REQUESTS))
+        """
+        proxies = self.list_proxies()
+        if not proxies:
+            raise ValueError("No proxies available from provider")
+
+        if algorithm is None:
+            algorithm = self._default_algorithm
+
+        return algorithm.select(proxies)
 
     #
     # Internal Methods

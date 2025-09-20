@@ -1,13 +1,15 @@
 import os
+
 import pytest
 import responses
-from proxyproviders.providers.brightdata import BrightData
+
 from proxyproviders.exceptions import (
-    ProxyFetchException,
     ProxyConversionException,
+    ProxyFetchException,
     ProxyInvalidResponseException,
 )
 from proxyproviders.models.proxy import Proxy
+from proxyproviders.providers.brightdata import BrightData
 
 skip_integration = pytest.mark.skipif(
     not (os.getenv("RUN_INTEGRATION_TESTS") and os.getenv("BRIGHTDATA_API_KEY")),

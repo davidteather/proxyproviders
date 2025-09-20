@@ -1,4 +1,5 @@
 import pytest
+
 from proxyproviders.exceptions import ProxyFetchException, ProxyInvalidResponseException
 
 
