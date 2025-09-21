@@ -41,6 +41,8 @@ python -m pip install proxyproviders
 
 Here's a quick bit of code to get you started! There's also a few [examples in the folder](https://github.com/davidteather/proxyproviders/tree/main/examples). 
 
+**📺 Video Tutorial:** [Watch the quick start guide on YouTube](https://youtu.be/h-JouO_orYo) for a walkthrough of getting started with ProxyProviders.
+
 **Note:** If you want to learn how to web scrape websites check my [free and open-source course for learning everything web scraping](https://github.com/davidteather/everything-web-scraping)
 
 ### Choose a Proxy Provider
