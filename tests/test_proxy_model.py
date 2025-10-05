@@ -145,7 +145,7 @@ class TestProxyFormat:
         """Test format for Playwright with authentication."""
         result = sample_proxy.format(ProxyFormat.PLAYWRIGHT)
         expected = {
-            "server": "192.168.1.100:8080",
+            "server": "http://192.168.1.100:8080",
             "username": "testuser",
             "password": "testpass",
         }
@@ -155,7 +155,7 @@ class TestProxyFormat:
         """Test format for Playwright with authentication (sample_proxy_no_protocols has auth)."""
         result = sample_proxy_no_protocols.format(ProxyFormat.PLAYWRIGHT)
         expected = {
-            "server": "10.0.0.1:3128",
+            "server": "http://10.0.0.1:3128",
             "username": "user2",
             "password": "pass2",
         }
@@ -171,7 +171,7 @@ class TestProxyFormat:
             port=8080,
         )
         result = proxy.format(ProxyFormat.PLAYWRIGHT)
-        expected = {"server": "192.168.1.1:8080"}
+        expected = {"server": "http://192.168.1.1:8080"}
         assert result == expected
 
     def test_format_playwright_none_credentials(self):
@@ -184,16 +184,68 @@ class TestProxyFormat:
             port=8080,
         )
         result = proxy.format(ProxyFormat.PLAYWRIGHT)
-        expected = {"server": "192.168.1.1:8080"}
+        expected = {"server": "http://192.168.1.1:8080"}
         assert result == expected
 
     def test_format_playwright_string_format(self, sample_proxy):
         """Test format for Playwright using string format."""
         result = sample_proxy.format("playwright")
         expected = {
-            "server": "192.168.1.100:8080",
+            "server": "http://192.168.1.100:8080",
             "username": "testuser",
             "password": "testpass",
+        }
+        assert result == expected
+
+    def test_format_playwright_with_protocol(self, sample_proxy):
+        """Test format for Playwright with specific protocol."""
+        # Test with https protocol
+        result = sample_proxy.format(ProxyFormat.PLAYWRIGHT, protocol="https")
+        expected = {
+            "server": "https://192.168.1.100:8080",
+            "username": "testuser",
+            "password": "testpass",
+        }
+        assert result == expected
+
+    def test_format_playwright_with_socks5(self):
+        """Test format for Playwright with SOCKS5 protocol."""
+        # Create a proxy that supports SOCKS5
+        proxy = Proxy(
+            id="socks5-test",
+            username="testuser",
+            password="testpass",
+            proxy_address="192.168.1.100",
+            port=8080,
+            protocols=["http", "https", "socks5"],  # Include socks5 support
+        )
+
+        result = proxy.format(ProxyFormat.PLAYWRIGHT, protocol="socks5")
+        expected = {
+            "server": "socks5://192.168.1.100:8080",
+            "username": "testuser",
+            "password": "testpass",
+        }
+        assert result == expected
+
+    def test_format_playwright_protocol_fallback(self):
+        """Test format for Playwright with protocol fallback."""
+        # Create proxy with limited protocols
+        proxy = Proxy(
+            id="limited-protocol",
+            username="user",
+            password="pass",
+            proxy_address="192.168.1.1",
+            port=8080,
+            protocols=["http"],  # Only supports HTTP
+        )
+
+        # Request unsupported protocol, should fallback to http
+        result = proxy.format(ProxyFormat.PLAYWRIGHT, protocol="socks5")
+        expected = {
+            "server": "http://192.168.1.1:8080",
+            "username": "user",
+            "password": "pass",
         }
         assert result == expected
 

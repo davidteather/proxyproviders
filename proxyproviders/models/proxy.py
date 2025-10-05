@@ -112,7 +112,7 @@ class Proxy:
             ProxyFormat.CURL: lambda: ["-x", self.to_url("http")],
             ProxyFormat.HTTPX: lambda: self._format_httpx(),
             ProxyFormat.AIOHTTP: lambda: self.to_url("http"),
-            ProxyFormat.PLAYWRIGHT: lambda: self._format_playwright(),
+            ProxyFormat.PLAYWRIGHT: lambda: self._format_playwright(**kwargs),
         }
 
         handler = format_handlers.get(format_type)
@@ -132,9 +132,18 @@ class Proxy:
         proxy_url = self.to_url("http")
         return {"http://": proxy_url, "https://": proxy_url}
 
-    def _format_playwright(self):
+    def _format_playwright(self, **kwargs):
         """Format proxy for Playwright."""
-        playwright_proxy = {"server": f"{self.proxy_address}:{self.port}"}
+        # Playwright expects server with protocol (e.g., 'http://ip:port', 'socks5://ip:port')
+        # Allow protocol selection via kwargs, default to http
+        protocol = kwargs.get("protocol", "http")
+
+        # Validate protocol is supported by the proxy
+        if self.protocols and protocol not in self.protocols:
+            # If proxy has specific protocols, use the first available one
+            protocol = self.protocols[0]
+
+        playwright_proxy = {"server": f"{protocol}://{self.proxy_address}:{self.port}"}
 
         if self.username and self.password:
             playwright_proxy["username"] = self.username
