@@ -102,7 +102,7 @@ class Proxy:
                     f"Invalid format type: '{format_type}'. Valid options are: {[f.value for f in ProxyFormat]}"
                 )
         elif not isinstance(format_type, ProxyFormat):
-            raise ValueError(
+            raise ValueError(  # pyright: ignore[reportUnreachable] this is actually reachable
                 f"Invalid format type: {type(format_type).__name__}. Expected ProxyFormat enum or string."
             )
 
@@ -115,10 +115,7 @@ class Proxy:
             ProxyFormat.PLAYWRIGHT: lambda: self._format_playwright(**kwargs),
         }
 
-        handler = format_handlers.get(format_type)
-        if handler is None:
-            raise ValueError(f"Unsupported format: {format_type}")
-
+        handler = format_handlers[format_type]
         return handler()
 
     def _format_requests(self, kwargs):

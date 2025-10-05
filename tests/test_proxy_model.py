@@ -263,6 +263,62 @@ class TestProxyFormat:
         with pytest.raises(ValueError, match="Invalid format type"):
             sample_proxy.format("unsupported")
 
+    def test_format_invalid_type_not_string_or_enum(self, sample_proxy):
+        """Test format with invalid type (not string or ProxyFormat enum)."""
+        with pytest.raises(
+            ValueError,
+            match="Invalid format type: int. Expected ProxyFormat enum or string.",
+        ):
+            sample_proxy.format(123)  # int instead of string/enum
+
+    def test_format_invalid_type_none(self, sample_proxy):
+        """Test format with None type."""
+        with pytest.raises(
+            ValueError,
+            match="Invalid format type: NoneType. Expected ProxyFormat enum or string.",
+        ):
+            sample_proxy.format(None)
+
+    def test_format_invalid_type_list(self, sample_proxy):
+        """Test format with list type."""
+        with pytest.raises(
+            ValueError,
+            match="Invalid format type: list. Expected ProxyFormat enum or string.",
+        ):
+            sample_proxy.format(["requests"])
+
+    def test_format_invalid_type_dict(self, sample_proxy):
+        """Test format with dict type."""
+        with pytest.raises(
+            ValueError,
+            match="Invalid format type: dict. Expected ProxyFormat enum or string.",
+        ):
+            sample_proxy.format({"format": "requests"})
+
+    def test_format_handlers_complete_coverage(self, sample_proxy):
+        """Test that all ProxyFormat enum values have corresponding handlers."""
+        # This test ensures that if someone adds a new ProxyFormat enum value,
+        # they must also add a corresponding handler in the format_handlers dictionary
+
+        # Get all ProxyFormat enum values
+        all_proxy_formats = set(ProxyFormat)
+
+        # Test that each format can be processed without KeyError
+        for format_type in all_proxy_formats:
+            try:
+                result = sample_proxy.format(format_type)
+                assert (
+                    result is not None
+                ), f"Format {format_type.value} should return a result"
+            except KeyError as e:
+                pytest.fail(f"Missing handler for ProxyFormat.{format_type.name}: {e}")
+            except Exception as e:
+                # Other exceptions are fine (like validation errors), but KeyError means missing handler
+                if "KeyError" in str(type(e)):
+                    pytest.fail(
+                        f"Missing handler for ProxyFormat.{format_type.name}: {e}"
+                    )
+
     def test_format_proxy_with_limited_protocols(self):
         """Test format with proxy that only supports specific protocols."""
         proxy = Proxy(
