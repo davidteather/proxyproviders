@@ -141,6 +141,62 @@ class TestProxyFormat:
         expected = "http://testuser:testpass@192.168.1.100:8080"
         assert result == expected
 
+    def test_format_playwright_with_auth(self, sample_proxy):
+        """Test format for Playwright with authentication."""
+        result = sample_proxy.format(ProxyFormat.PLAYWRIGHT)
+        expected = {
+            "server": "192.168.1.100:8080",
+            "username": "testuser",
+            "password": "testpass",
+        }
+        assert result == expected
+
+    def test_format_playwright_without_auth(self, sample_proxy_no_protocols):
+        """Test format for Playwright with authentication (sample_proxy_no_protocols has auth)."""
+        result = sample_proxy_no_protocols.format(ProxyFormat.PLAYWRIGHT)
+        expected = {
+            "server": "10.0.0.1:3128",
+            "username": "user2",
+            "password": "pass2",
+        }
+        assert result == expected
+
+    def test_format_playwright_empty_credentials(self):
+        """Test format for Playwright with empty username/password."""
+        proxy = Proxy(
+            id="no-auth",
+            username="",
+            password="",
+            proxy_address="192.168.1.1",
+            port=8080,
+        )
+        result = proxy.format(ProxyFormat.PLAYWRIGHT)
+        expected = {"server": "192.168.1.1:8080"}
+        assert result == expected
+
+    def test_format_playwright_none_credentials(self):
+        """Test format for Playwright with None username/password."""
+        proxy = Proxy(
+            id="none-auth",
+            username=None,
+            password=None,
+            proxy_address="192.168.1.1",
+            port=8080,
+        )
+        result = proxy.format(ProxyFormat.PLAYWRIGHT)
+        expected = {"server": "192.168.1.1:8080"}
+        assert result == expected
+
+    def test_format_playwright_string_format(self, sample_proxy):
+        """Test format for Playwright using string format."""
+        result = sample_proxy.format("playwright")
+        expected = {
+            "server": "192.168.1.100:8080",
+            "username": "testuser",
+            "password": "testpass",
+        }
+        assert result == expected
+
     def test_format_string_enum(self, sample_proxy):
         """Test format with string instead of enum."""
         result = sample_proxy.format("requests")
@@ -152,7 +208,7 @@ class TestProxyFormat:
 
     def test_format_unsupported_format(self, sample_proxy):
         """Test format with unsupported format type."""
-        with pytest.raises(ValueError, match="is not a valid ProxyFormat"):
+        with pytest.raises(ValueError, match="Invalid format type"):
             sample_proxy.format("unsupported")
 
     def test_format_proxy_with_limited_protocols(self):
@@ -237,3 +293,7 @@ class TestProxyIntegration:
         # AIOHTTP format returns string
         aiohttp_result = sample_proxy.format(ProxyFormat.AIOHTTP)
         assert isinstance(aiohttp_result, str)
+
+        # PLAYWRIGHT format returns dict
+        playwright_result = sample_proxy.format(ProxyFormat.PLAYWRIGHT)
+        assert isinstance(playwright_result, dict)

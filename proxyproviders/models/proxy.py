@@ -19,6 +19,9 @@ class ProxyFormat(Enum):
     AIOHTTP = "aiohttp"
     """AIOHTTP format, for use in aiohttp library HTTP calls"""
 
+    PLAYWRIGHT = "playwright"
+    """Playwright format, for use in Playwright browser automation"""
+
     URL = "url"
     """URL format, for use in URL strings"""
 
@@ -90,29 +93,51 @@ class Proxy:
             >>> proxy.format(ProxyFormat.HTTPX)
             {'http://': 'http://user:pass@192.168.1.1:8080', 'https://': 'http://user:pass@192.168.1.1:8080'}
         """
+        # Convert to ProxyFormat enum, handling both string and enum inputs
         if isinstance(format_type, str):
-            format_type = ProxyFormat(format_type)
+            try:
+                format_type = ProxyFormat(format_type)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid format type: '{format_type}'. Valid options are: {[f.value for f in ProxyFormat]}"
+                )
+        elif not isinstance(format_type, ProxyFormat):
+            raise ValueError(
+                f"Invalid format type: {type(format_type).__name__}. Expected ProxyFormat enum or string."
+            )
 
-        if format_type == ProxyFormat.URL:
-            protocol = kwargs.get("protocol", "http")
-            return self.to_url(protocol)
+        format_handlers = {
+            ProxyFormat.URL: lambda: self.to_url(kwargs.get("protocol", "http")),
+            ProxyFormat.REQUESTS: lambda: self._format_requests(kwargs),
+            ProxyFormat.CURL: lambda: ["-x", self.to_url("http")],
+            ProxyFormat.HTTPX: lambda: self._format_httpx(),
+            ProxyFormat.AIOHTTP: lambda: self.to_url("http"),
+            ProxyFormat.PLAYWRIGHT: lambda: self._format_playwright(),
+        }
 
-        elif format_type == ProxyFormat.REQUESTS:
-            protocols = kwargs.get("protocols", self.protocols or ["http", "https"])
-            proxy_url = self.to_url("http")
-            return {protocol: proxy_url for protocol in protocols}
-
-        elif format_type == ProxyFormat.CURL:
-            return ["-x", self.to_url("http")]
-
-        elif format_type == ProxyFormat.HTTPX:
-            # httpx uses 'http://' and 'https://' as keys
-            proxy_url = self.to_url("http")
-            return {"http://": proxy_url, "https://": proxy_url}
-
-        elif format_type == ProxyFormat.AIOHTTP:
-            # aiohttp takes a single URL string
-            return self.to_url("http")
-
-        else:
+        handler = format_handlers.get(format_type)
+        if handler is None:
             raise ValueError(f"Unsupported format: {format_type}")
+
+        return handler()
+
+    def _format_requests(self, kwargs):
+        """Format proxy for requests library."""
+        protocols = kwargs.get("protocols", self.protocols or ["http", "https"])
+        proxy_url = self.to_url("http")
+        return {protocol: proxy_url for protocol in protocols}
+
+    def _format_httpx(self):
+        """Format proxy for httpx library."""
+        proxy_url = self.to_url("http")
+        return {"http://": proxy_url, "https://": proxy_url}
+
+    def _format_playwright(self):
+        """Format proxy for Playwright."""
+        playwright_proxy = {"server": f"{self.proxy_address}:{self.port}"}
+
+        if self.username and self.password:
+            playwright_proxy["username"] = self.username
+            playwright_proxy["password"] = self.password
+
+        return playwright_proxy
