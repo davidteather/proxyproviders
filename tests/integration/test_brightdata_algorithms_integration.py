@@ -94,6 +94,86 @@ def test_brightdata_proxy_conversion_methods():
     assert "https" in requests_dict
     print(f"BrightData Requests dict: {requests_dict}")
 
+    # Test Playwright format (default protocol)
+    playwright_dict = proxy.format(ProxyFormat.PLAYWRIGHT)
+    assert isinstance(playwright_dict, dict)
+    assert "server" in playwright_dict
+    assert playwright_dict["server"].startswith("http://")
+    assert f"{proxy.proxy_address}:{proxy.port}" in playwright_dict["server"]
+    assert "username" in playwright_dict
+    assert "password" in playwright_dict
+    assert playwright_dict["username"] == proxy.username
+    assert playwright_dict["password"] == proxy.password
+
+    # Test Playwright format with different protocols
+    for protocol in ["http", "https"]:
+        playwright_protocol = proxy.format(ProxyFormat.PLAYWRIGHT, protocol=protocol)
+        assert playwright_protocol["server"].startswith(f"{protocol}://")
+
+
+@skip_integration
+def test_brightdata_playwright_format_comprehensive():
+    """Comprehensive test of Playwright format with real BrightData API."""
+    api_key = os.getenv("BRIGHTDATA_API_KEY")
+    provider = BrightData(api_key=api_key, zone="static")
+
+    proxy = provider.get_proxy()
+
+    # Test 1: Default Playwright format
+    default_format = proxy.format(ProxyFormat.PLAYWRIGHT)
+    assert isinstance(default_format, dict)
+    assert "server" in default_format
+    assert "username" in default_format
+    assert "password" in default_format
+    assert default_format["server"].startswith("http://")
+
+    # Test 2: Protocol variations
+    protocols_to_test = ["http", "https"]
+
+    for protocol in protocols_to_test:
+        result = proxy.format(ProxyFormat.PLAYWRIGHT, protocol=protocol)
+        assert result["server"].startswith(f"{protocol}://")
+        assert result["username"] == proxy.username
+        assert result["password"] == proxy.password
+
+    # Test 3: String format
+    string_format = proxy.format("playwright")
+    assert string_format == default_format
+
+    # Test 4: Format consistency
+    enum_format = proxy.format(ProxyFormat.PLAYWRIGHT)
+    string_format = proxy.format("playwright")
+    assert enum_format == string_format
+
+    # Test 5: Playwright documentation compliance
+    playwright_config = proxy.format(ProxyFormat.PLAYWRIGHT)
+
+    # Verify structure matches Playwright docs
+    required_fields = ["server"]
+    optional_fields = ["username", "password"]
+
+    for field in required_fields:
+        assert field in playwright_config, f"Missing required field: {field}"
+
+    for field in optional_fields:
+        if field in playwright_config:
+            assert True  # Field is present
+        else:
+            assert False, f"Missing optional field: {field}"
+
+    # Verify server format
+    server = playwright_config["server"]
+    assert "://" in server, "Server should include protocol"
+    assert (
+        f"{proxy.proxy_address}:{proxy.port}" in server
+    ), "Server should include address and port"
+
+    # Test 6: Protocol fallback behavior
+    # Try to use an unsupported protocol - should fallback gracefully
+    fallback_result = proxy.format(ProxyFormat.PLAYWRIGHT, protocol="socks5")
+    assert "server" in fallback_result
+    assert fallback_result["server"].startswith("http://")  # Should fallback to http
+
 
 @skip_integration
 def test_brightdata_e2e_with_requests():

@@ -96,6 +96,119 @@ def test_webshare_proxy_conversion_methods():
     assert "https" in requests_dict
     print(f"Requests dict: {requests_dict}")
 
+    # Test Playwright format (default protocol)
+    playwright_dict = proxy.format(ProxyFormat.PLAYWRIGHT)
+    assert isinstance(playwright_dict, dict)
+    assert "server" in playwright_dict
+    assert playwright_dict["server"].startswith("http://")
+    assert f"{proxy.proxy_address}:{proxy.port}" in playwright_dict["server"]
+    assert "username" in playwright_dict
+    assert "password" in playwright_dict
+    assert playwright_dict["username"] == proxy.username
+    assert playwright_dict["password"] == proxy.password
+
+    # Test Playwright format with different protocols
+    for protocol in ["http", "https"]:
+        playwright_protocol = proxy.format(ProxyFormat.PLAYWRIGHT, protocol=protocol)
+        assert playwright_protocol["server"].startswith(f"{protocol}://")
+
+
+@skip_integration
+def test_webshare_playwright_format_comprehensive():
+    """Comprehensive test of Playwright format with real Webshare API."""
+    api_key = os.getenv("WEBSHARE_API_KEY")
+    provider = Webshare(api_key=api_key)
+
+    proxy = provider.get_proxy()
+
+    # Test 1: Default Playwright format
+    default_format = proxy.format(ProxyFormat.PLAYWRIGHT)
+    assert isinstance(default_format, dict)
+    assert "server" in default_format
+    assert "username" in default_format
+    assert "password" in default_format
+    assert default_format["server"].startswith("http://")
+
+    # Test 2: Protocol variations
+    protocols_to_test = ["http", "https"]
+
+    for protocol in protocols_to_test:
+        result = proxy.format(ProxyFormat.PLAYWRIGHT, protocol=protocol)
+        assert result["server"].startswith(f"{protocol}://")
+        assert result["username"] == proxy.username
+        assert result["password"] == proxy.password
+
+    # Test 3: String format
+    string_format = proxy.format("playwright")
+    assert string_format == default_format
+
+    # Test 4: Format consistency
+    enum_format = proxy.format(ProxyFormat.PLAYWRIGHT)
+    string_format = proxy.format("playwright")
+    assert enum_format == string_format
+
+    # Test 5: Playwright documentation compliance
+    playwright_config = proxy.format(ProxyFormat.PLAYWRIGHT)
+
+    # Verify structure matches Playwright docs
+    required_fields = ["server"]
+    optional_fields = ["username", "password"]
+
+    for field in required_fields:
+        assert field in playwright_config, f"Missing required field: {field}"
+
+    for field in optional_fields:
+        if field in playwright_config:
+            assert True  # Field is present
+        else:
+            assert False, f"Missing optional field: {field}"
+
+    # Verify server format
+    server = playwright_config["server"]
+    assert "://" in server, "Server should include protocol"
+    assert (
+        f"{proxy.proxy_address}:{proxy.port}" in server
+    ), "Server should include address and port"
+
+
+@skip_integration
+def test_webshare_playwright_e2e_simulation():
+    """End-to-end simulation of Playwright usage with real Webshare proxy."""
+    api_key = os.getenv("WEBSHARE_API_KEY")
+    provider = Webshare(api_key=api_key)
+
+    proxy = provider.get_proxy()
+
+    # Convert to Playwright format
+    playwright_config = proxy.format(ProxyFormat.PLAYWRIGHT)
+
+    # Verify the format is exactly what Playwright expects
+    # Check server format
+    server = playwright_config["server"]
+    assert "://" in server, "Server must include protocol"
+    assert (
+        f"{proxy.proxy_address}:{proxy.port}" in server
+    ), "Server must include address and port"
+
+    # Check authentication
+    assert "username" in playwright_config, "Username field is required"
+    assert "password" in playwright_config, "Password field is required"
+
+    # Check required fields
+    assert "server" in playwright_config, "Server field is required"
+
+    # Check optional fields
+    optional_fields = ["username", "password"]
+    for field in optional_fields:
+        assert field in playwright_config, f"Missing optional field: {field}"
+
+    # Test different protocols
+    protocols = ["http", "https"]
+    for protocol in protocols:
+        config = proxy.format(ProxyFormat.PLAYWRIGHT, protocol=protocol)
+        server = config["server"]
+        assert server.startswith(f"{protocol}://")
+
 
 @skip_integration
 def test_webshare_e2e_with_requests():
