@@ -2,9 +2,18 @@
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry]
+name = "proxyproviders"
+version = "0.2.2"
+description = "A unified interface for different proxy providers"
+authors = ["David Teather <contact.davidteather@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.9"
+
 [project]
 name = "proxyproviders"
-version = "0.2.1"
+version = "0.2.2"
 description = "A unified interface for different proxy providers"
 readme = "README.md"
 authors = [{ name = "David Teather", email = "contact.davidteather@gmail.com" }]
