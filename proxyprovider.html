@@ -6,17 +6,17 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ProxyProvider Shared Interface &mdash; ProxyProviders 0.2.1 documentation</title>
+  <title>ProxyProvider Shared Interface &mdash; ProxyProviders 0.2.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
     <link rel="canonical" href="https://davidteather.github.io/proxyproviders/proxyprovider.html" />
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=37f418d5"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/documentation_options.js?v=000c92bf"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -49,6 +49,7 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider"><code class="docutils literal notranslate"><span class="pre">ProxyProvider</span></code></a><ul>
+<li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.config"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.config</span></code></a></li>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.list_proxies"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.list_proxies()</span></code></a></li>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.get_proxy"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.get_proxy()</span></code></a></li>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.should_refresh"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.should_refresh()</span></code></a></li>
@@ -86,7 +87,7 @@
 <span id="proxyprovider-shared-interface"></span><h1>ProxyProvider Shared Interface<a class="headerlink" href="#module-proxyproviders.proxy_provider" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyConfig">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">proxyproviders.proxy_provider.</span></span><span class="sig-name descname"><span class="pre">ProxyConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">refresh_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">600</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyConfig" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">proxyproviders.proxy_provider.</span></span><span class="sig-name descname"><span class="pre">ProxyConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">refresh_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">600</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyConfig" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Provides standard shared configuration options for all proxy providers.</p>
 <p>Example:</p>
@@ -98,7 +99,7 @@
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyConfig.refresh_interval">
-<span class="sig-name descname"><span class="pre">refresh_interval</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">600</span></em><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyConfig.refresh_interval" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">refresh_interval</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">600</span></span><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyConfig.refresh_interval" title="Link to this definition"></a></dt>
 <dd><p>Duration in seconds after which the proxy list is refreshed to fetch new proxies.
 Set to 0 to disable automatic refreshing after the initial fetch.</p>
 </dd></dl>
@@ -107,7 +108,7 @@ Set to 0 to disable automatic refreshing after the initial fetch.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyProvider">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">proxyproviders.proxy_provider.</span></span><span class="sig-name descname"><span class="pre">ProxyProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyConfig" title="proxyproviders.proxy_provider.ProxyConfig"><span class="pre">ProxyConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyProvider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyProvider" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">proxyproviders.proxy_provider.</span></span><span class="sig-name descname"><span class="pre">ProxyProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyConfig" title="proxyproviders.proxy_provider.ProxyConfig"><span class="pre">ProxyConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyProvider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyProvider" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <p>Base class for all proxy providers that provides shared functionality across all providers.</p>
 <p>You’ll need to use a specific provider to fetch proxies and this shouldn’t directly be initialized. However, this class is useful for
@@ -117,6 +118,11 @@ type hinting and for creating custom providers that are not included in the libr
 <dd class="field-odd"><p><strong>config</strong> – Configuration for the proxy provider. View the ProxyConfig class docs for more information.</p>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyProvider.config">
+<span class="sig-name descname"><span class="pre">config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyConfig" title="proxyproviders.proxy_provider.ProxyConfig"><span class="pre">ProxyConfig</span></a></span><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyProvider.config" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyProvider.list_proxies">
 <span class="sig-name descname"><span class="pre">list_proxies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_refresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="models.html#proxyproviders.models.proxy.Proxy" title="proxyproviders.models.proxy.Proxy"><span class="pre">Proxy</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyProvider.list_proxies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyProvider.list_proxies" title="Link to this definition"></a></dt>
