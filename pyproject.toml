@@ -8,6 +8,9 @@ version = "0.2.2"
 description = "A unified interface for different proxy providers"
 authors = ["David Teather <contact.davidteather@gmail.com>"]
 
+[tool.poetry.dependencies]
+python = ">=3.9"
+
 [project]
 name = "proxyproviders"
 version = "0.2.2"
