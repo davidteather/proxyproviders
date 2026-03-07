@@ -183,6 +183,73 @@ def test_bad_proxy_format_response(mock_webshare):
 
 
 @responses.activate
+def test_fetch_proxies_specific_page_stops_after_one_request():
+    """
+    Regression test: When 'page' is in search_params, _fetch_proxies() must
+    make exactly one API call and return only that page's results, even if the
+    response contains a 'next' URL indicating further pages exist.
+    """
+    provider = Webshare(
+        api_key="test-api-key", search_params={"page": 2, "page_size": 25}
+    )
+
+    responses.add(
+        responses.GET,
+        "https://proxy.webshare.io/api/v2/proxy/list",
+        json={
+            "results": [
+                {
+                    "id": "1",
+                    "username": "user1",
+                    "password": "pass1",
+                    "proxy_address": "192.168.1.1",
+                    "port": 8080,
+                    "country_code": "US",
+                    "city_name": "New York",
+                    "created_at": "2023-05-10T12:34:56",
+                }
+            ],
+            "next": "https://proxy.webshare.io/api/v2/proxy/list?page=3&page_size=25",
+        },
+        status=200,
+    )
+
+    proxies = provider._fetch_proxies()
+
+    assert len(responses.calls) == 1
+    assert len(proxies) == 1
+    assert proxies[0].proxy_address == "192.168.1.1"
+
+
+@responses.activate
+def test_fetch_proxies_specific_page_sends_correct_params():
+    """
+    Regression test: Verify the page value from search_params is forwarded
+    to the API verbatim (not overridden by the internal loop counter).
+    """
+    provider = Webshare(
+        api_key="test-api-key", search_params={"page": 5, "page_size": 10}
+    )
+
+    responses.add(
+        responses.GET,
+        "https://proxy.webshare.io/api/v2/proxy/list",
+        json={
+            "results": [],
+            "next": "https://proxy.webshare.io/api/v2/proxy/list?page=6&page_size=10",
+        },
+        status=200,
+    )
+
+    provider._fetch_proxies()
+
+    assert len(responses.calls) == 1
+    request_url = responses.calls[0].request.url
+    assert "page=5" in request_url
+    assert "page_size=10" in request_url
+
+
+@responses.activate
 def test_invalid_proxy_timestamp(mock_webshare):
     """
     Unit test: Fetch proxies with a bad response.

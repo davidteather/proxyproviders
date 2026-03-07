@@ -92,7 +92,7 @@ class Webshare(ProxyProvider):
 
             all_proxies.extend([self._convert_to_proxy(proxy) for proxy in proxy_data])
 
-            if data.get("next") is None:  # no more pages
+            if "page" in self.search_params or data.get("next") is None:
                 break
 
         return all_proxies
