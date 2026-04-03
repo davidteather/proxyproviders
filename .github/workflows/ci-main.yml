@@ -3,6 +3,7 @@ name: CI Main Branch With Integration
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   build:
