@@ -76,25 +76,25 @@
 <div class="viewcode-block" id="ProxyFormat">
 <a class="viewcode-back" href="../../../models.html#proxyproviders.models.proxy.ProxyFormat">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ProxyFormat</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Supported proxy output formats.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Supported proxy output formats."""</span>
 
-    <span class="n">REQUESTS</span> <span class="o">=</span> <span class="s2">&quot;requests&quot;</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Requests format, for use in requests library HTTP calls&quot;&quot;&quot;</span>
+    <span class="n">REQUESTS</span> <span class="o">=</span> <span class="s2">"requests"</span>
+<span class="w">    </span><span class="sd">"""Requests format, for use in requests library HTTP calls"""</span>
 
-    <span class="n">CURL</span> <span class="o">=</span> <span class="s2">&quot;curl&quot;</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;CURL format, for use in curl commands&quot;&quot;&quot;</span>
+    <span class="n">CURL</span> <span class="o">=</span> <span class="s2">"curl"</span>
+<span class="w">    </span><span class="sd">"""CURL format, for use in curl commands"""</span>
 
-    <span class="n">HTTPX</span> <span class="o">=</span> <span class="s2">&quot;httpx&quot;</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;HTTPX format, for use in httpx library HTTP calls&quot;&quot;&quot;</span>
+    <span class="n">HTTPX</span> <span class="o">=</span> <span class="s2">"httpx"</span>
+<span class="w">    </span><span class="sd">"""HTTPX format, for use in httpx library HTTP calls"""</span>
 
-    <span class="n">AIOHTTP</span> <span class="o">=</span> <span class="s2">&quot;aiohttp&quot;</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;AIOHTTP format, for use in aiohttp library HTTP calls&quot;&quot;&quot;</span>
+    <span class="n">AIOHTTP</span> <span class="o">=</span> <span class="s2">"aiohttp"</span>
+<span class="w">    </span><span class="sd">"""AIOHTTP format, for use in aiohttp library HTTP calls"""</span>
 
-    <span class="n">PLAYWRIGHT</span> <span class="o">=</span> <span class="s2">&quot;playwright&quot;</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Playwright format, for use in Playwright browser automation&quot;&quot;&quot;</span>
+    <span class="n">PLAYWRIGHT</span> <span class="o">=</span> <span class="s2">"playwright"</span>
+<span class="w">    </span><span class="sd">"""Playwright format, for use in Playwright browser automation"""</span>
 
-    <span class="n">URL</span> <span class="o">=</span> <span class="s2">&quot;url&quot;</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;URL format, for use in URL strings&quot;&quot;&quot;</span></div>
+    <span class="n">URL</span> <span class="o">=</span> <span class="s2">"url"</span>
+<span class="w">    </span><span class="sd">"""URL format, for use in URL strings"""</span></div>
 
 
 
@@ -102,50 +102,50 @@
 <a class="viewcode-back" href="../../../models.html#proxyproviders.models.proxy.Proxy">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Proxy</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Our shared data model for a proxy object across all providers.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Our shared data model for a proxy object across all providers."""</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A unique identifier for the proxy&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A unique identifier for the proxy"""</span>
 
     <span class="n">username</span><span class="p">:</span> <span class="nb">str</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The username required for authenticating with the proxy&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The username required for authenticating with the proxy"""</span>
 
     <span class="n">password</span><span class="p">:</span> <span class="nb">str</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The password required for authenticating with the proxy&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The password required for authenticating with the proxy"""</span>
 
     <span class="n">proxy_address</span><span class="p">:</span> <span class="nb">str</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The IP address or domain name of the proxy&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The IP address or domain name of the proxy"""</span>
 
     <span class="n">port</span><span class="p">:</span> <span class="nb">int</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The port number through which the proxy connection is established&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The port number through which the proxy connection is established"""</span>
 
     <span class="n">country_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The country code where the proxy is located, e.g., &#39;US&#39;, &#39;FR&#39;. Optional&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The country code where the proxy is located, e.g., 'US', 'FR'. Optional"""</span>
 
     <span class="n">city_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The city name where the proxy is located, e.g., &#39;New York&#39;, &#39;Paris&#39;. Optional&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The city name where the proxy is located, e.g., 'New York', 'Paris'. Optional"""</span>
 
     <span class="n">created_at</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The timestamp when the proxy was created. Optional&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The timestamp when the proxy was created. Optional"""</span>
 
     <span class="n">protocols</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A list of connection protocols supported by the proxy, e.g., [&#39;http&#39;, &#39;https&#39;]&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A list of connection protocols supported by the proxy, e.g., ['http', 'https']"""</span>
 
 <div class="viewcode-block" id="Proxy.to_url">
 <a class="viewcode-back" href="../../../models.html#proxyproviders.models.proxy.Proxy.to_url">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;http&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert proxy to URL format for use with HTTP clients.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"http"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Convert proxy to URL format for use with HTTP clients.</span>
 
-<span class="sd">        :param protocol: The protocol to use in the URL (default: &#39;http&#39;)</span>
-<span class="sd">        :return: Proxy URL in format &#39;protocol://username:password@host:port&#39;</span>
+<span class="sd">        :param protocol: The protocol to use in the URL (default: 'http')</span>
+<span class="sd">        :return: Proxy URL in format 'protocol://username:password@host:port'</span>
 
 <span class="sd">        Example:</span>
 <span class="sd">            &gt;&gt;&gt; proxy.to_url()</span>
-<span class="sd">            &#39;http://user:pass@192.168.1.1:8080&#39;</span>
-<span class="sd">            &gt;&gt;&gt; proxy.to_url(&#39;https&#39;)</span>
-<span class="sd">            &#39;https://user:pass@192.168.1.1:8080&#39;</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">protocol</span><span class="si">}</span><span class="s2">://</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">proxy_address</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span></div>
+<span class="sd">            'http://user:pass@192.168.1.1:8080'</span>
+<span class="sd">            &gt;&gt;&gt; proxy.to_url('https')</span>
+<span class="sd">            'https://user:pass@192.168.1.1:8080'</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">protocol</span><span class="si">}</span><span class="s2">://</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">proxy_address</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">"</span></div>
 
 
 <div class="viewcode-block" id="Proxy.format">
@@ -153,7 +153,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">format_type</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ProxyFormat</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">URL</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format proxy for different HTTP clients and tools.</span>
+<span class="w">        </span><span class="sd">"""Format proxy for different HTTP clients and tools.</span>
 
 <span class="sd">        :param format_type: Output format (default: URL string)</span>
 <span class="sd">        :param kwargs: Format-specific options</span>
@@ -161,36 +161,36 @@
 
 <span class="sd">        Examples:</span>
 <span class="sd">            &gt;&gt;&gt; proxy.format()  # Default URL string</span>
-<span class="sd">            &#39;http://user:pass@192.168.1.1:8080&#39;</span>
+<span class="sd">            'http://user:pass@192.168.1.1:8080'</span>
 
 <span class="sd">            &gt;&gt;&gt; proxy.format(ProxyFormat.REQUESTS)</span>
-<span class="sd">            {&#39;http&#39;: &#39;http://user:pass@192.168.1.1:8080&#39;, &#39;https&#39;: &#39;http://user:pass@192.168.1.1:8080&#39;}</span>
+<span class="sd">            {'http': 'http://user:pass@192.168.1.1:8080', 'https': 'http://user:pass@192.168.1.1:8080'}</span>
 
-<span class="sd">            &gt;&gt;&gt; proxy.format(&#39;curl&#39;)  # String also works</span>
-<span class="sd">            [&#39;-x&#39;, &#39;http://user:pass@192.168.1.1:8080&#39;]</span>
+<span class="sd">            &gt;&gt;&gt; proxy.format('curl')  # String also works</span>
+<span class="sd">            ['-x', 'http://user:pass@192.168.1.1:8080']</span>
 
 <span class="sd">            &gt;&gt;&gt; proxy.format(ProxyFormat.HTTPX)</span>
-<span class="sd">            {&#39;http://&#39;: &#39;http://user:pass@192.168.1.1:8080&#39;, &#39;https://&#39;: &#39;http://user:pass@192.168.1.1:8080&#39;}</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            {'http://': 'http://user:pass@192.168.1.1:8080', 'https://': 'http://user:pass@192.168.1.1:8080'}</span>
+<span class="sd">        """</span>
         <span class="c1"># Convert to ProxyFormat enum, handling both string and enum inputs</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">format_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">format_type</span> <span class="o">=</span> <span class="n">ProxyFormat</span><span class="p">(</span><span class="n">format_type</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Invalid format type: &#39;</span><span class="si">{</span><span class="n">format_type</span><span class="si">}</span><span class="s2">&#39;. Valid options are: </span><span class="si">{</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">ProxyFormat</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Invalid format type: '</span><span class="si">{</span><span class="n">format_type</span><span class="si">}</span><span class="s2">'. Valid options are: </span><span class="si">{</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">ProxyFormat</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">format_type</span><span class="p">,</span> <span class="n">ProxyFormat</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>  <span class="c1"># pyright: ignore[reportUnreachable] this is actually reachable</span>
-                <span class="sa">f</span><span class="s2">&quot;Invalid format type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">format_type</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. Expected ProxyFormat enum or string.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Invalid format type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">format_type</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. Expected ProxyFormat enum or string."</span>
             <span class="p">)</span>
 
         <span class="n">format_handlers</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">URL</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_url</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;protocol&quot;</span><span class="p">,</span> <span class="s2">&quot;http&quot;</span><span class="p">)),</span>
+            <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">URL</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_url</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"protocol"</span><span class="p">,</span> <span class="s2">"http"</span><span class="p">)),</span>
             <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">REQUESTS</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_requests</span><span class="p">(</span><span class="n">kwargs</span><span class="p">),</span>
-            <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">CURL</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-x&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_url</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">)],</span>
+            <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">CURL</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="s2">"-x"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_url</span><span class="p">(</span><span class="s2">"http"</span><span class="p">)],</span>
             <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">HTTPX</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_httpx</span><span class="p">(),</span>
-            <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">AIOHTTP</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_url</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">),</span>
+            <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">AIOHTTP</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_url</span><span class="p">(</span><span class="s2">"http"</span><span class="p">),</span>
             <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">PLAYWRIGHT</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_playwright</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
         <span class="p">}</span>
 
@@ -199,32 +199,32 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_format_requests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format proxy for requests library.&quot;&quot;&quot;</span>
-        <span class="n">protocols</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;protocols&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;https&quot;</span><span class="p">])</span>
-        <span class="n">proxy_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_url</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Format proxy for requests library."""</span>
+        <span class="n">protocols</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"protocols"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">"http"</span><span class="p">,</span> <span class="s2">"https"</span><span class="p">])</span>
+        <span class="n">proxy_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_url</span><span class="p">(</span><span class="s2">"http"</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">protocol</span><span class="p">:</span> <span class="n">proxy_url</span> <span class="k">for</span> <span class="n">protocol</span> <span class="ow">in</span> <span class="n">protocols</span><span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_format_httpx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format proxy for httpx library.&quot;&quot;&quot;</span>
-        <span class="n">proxy_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_url</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;http://&quot;</span><span class="p">:</span> <span class="n">proxy_url</span><span class="p">,</span> <span class="s2">&quot;https://&quot;</span><span class="p">:</span> <span class="n">proxy_url</span><span class="p">}</span>
+<span class="w">        </span><span class="sd">"""Format proxy for httpx library."""</span>
+        <span class="n">proxy_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_url</span><span class="p">(</span><span class="s2">"http"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"http://"</span><span class="p">:</span> <span class="n">proxy_url</span><span class="p">,</span> <span class="s2">"https://"</span><span class="p">:</span> <span class="n">proxy_url</span><span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_format_playwright</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format proxy for Playwright.&quot;&quot;&quot;</span>
-        <span class="c1"># Playwright expects server with protocol (e.g., &#39;http://ip:port&#39;, &#39;socks5://ip:port&#39;)</span>
+<span class="w">        </span><span class="sd">"""Format proxy for Playwright."""</span>
+        <span class="c1"># Playwright expects server with protocol (e.g., 'http://ip:port', 'socks5://ip:port')</span>
         <span class="c1"># Allow protocol selection via kwargs, default to http</span>
-        <span class="n">protocol</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;protocol&quot;</span><span class="p">,</span> <span class="s2">&quot;http&quot;</span><span class="p">)</span>
+        <span class="n">protocol</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"protocol"</span><span class="p">,</span> <span class="s2">"http"</span><span class="p">)</span>
 
         <span class="c1"># Validate protocol is supported by the proxy</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span> <span class="ow">and</span> <span class="n">protocol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span><span class="p">:</span>
             <span class="c1"># If proxy has specific protocols, use the first available one</span>
             <span class="n">protocol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="n">playwright_proxy</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;server&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">protocol</span><span class="si">}</span><span class="s2">://</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">proxy_address</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+        <span class="n">playwright_proxy</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"server"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">protocol</span><span class="si">}</span><span class="s2">://</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">proxy_address</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">"</span><span class="p">}</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">username</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
-            <span class="n">playwright_proxy</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">username</span>
-            <span class="n">playwright_proxy</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span>
+            <span class="n">playwright_proxy</span><span class="p">[</span><span class="s2">"username"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">username</span>
+            <span class="n">playwright_proxy</span><span class="p">[</span><span class="s2">"password"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span>
 
         <span class="k">return</span> <span class="n">playwright_proxy</span></div>
 

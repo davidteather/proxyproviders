@@ -94,7 +94,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Webshare</span><span class="p">,</span> <span class="n">ProxyConfig</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">ProxyConfig</span><span class="p">(</span><span class="n">refresh_interval</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="n">proxy_provider</span> <span class="o">=</span> <span class="n">Webshare</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">proxy_provider</span> <span class="o">=</span> <span class="n">Webshare</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="py attribute">
@@ -154,7 +154,7 @@ If a format function is provided, it applies that function to each proxy.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Webshare</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Random</span><span class="p">,</span> <span class="n">RoundRobin</span>
 <span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">provider</span> <span class="o">=</span> <span class="n">Webshare</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">provider</span> <span class="o">=</span> <span class="n">Webshare</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-key"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Uses default RoundRobin (cycles through proxies)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">()</span>
@@ -165,7 +165,7 @@ If a format function is provided, it applies that function to each proxy.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># One-liner with requests</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders.models.proxy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProxyFormat</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/ip&quot;</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">()</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ProxyFormat</span><span class="o">.</span><span class="n">REQUESTS</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"https://httpbin.org/ip"</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">()</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ProxyFormat</span><span class="o">.</span><span class="n">REQUESTS</span><span class="p">))</span>
 </pre></div>
 </div>
 </dd></dl>

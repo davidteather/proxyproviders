@@ -79,11 +79,11 @@
 <div class="viewcode-block" id="BrightData">
 <a class="viewcode-back" href="../../../proxyproviders.html#proxyproviders.providers.brightdata.BrightData">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BrightData</span><span class="p">(</span><span class="n">ProxyProvider</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;BrightData (formerly luminati) is a proxy provider that offers residential and datacenter proxies.</span>
+<span class="w">    </span><span class="sd">"""BrightData (formerly luminati) is a proxy provider that offers residential and datacenter proxies.</span>
 
-<span class="sd">    Create an account `here &lt;https://get.brightdata.com/davidteather&gt;`_ (affiliate link).</span>
+<span class="sd">    Create an account `here &lt;https://go.dteather.com/brightdata?src=proxyproviders&amp;placement=docstring&gt;`_ (affiliate link).</span>
 
-<span class="sd">    You can find your API key in the account settings `here &lt;https://brightdata.com/cp/setting/users&gt;`_ then create &quot;add token&quot; with scope &quot;limit&quot; (`BrightData article &lt;https://docs.brightdata.com/general/account/api-token&gt;`_ for more info)</span>
+<span class="sd">    You can find your API key in the account settings `here &lt;https://brightdata.com/cp/setting/users&gt;`_ then create "add token" with scope "limit" (`BrightData article &lt;https://docs.brightdata.com/general/account/api-token&gt;`_ for more info)</span>
 
 <span class="sd">    The BrightData API documentation is `here &lt;https://docs.brightdata.com/api-reference/account-management-api/Get_active_Zones?playground=open&gt;`_</span>
 
@@ -100,20 +100,20 @@
 <span class="sd">        from proxyproviders import BrightData</span>
 
 <span class="sd">        # Initialize the BrightData API client with an API key and a zone</span>
-<span class="sd">        proxy_provider = BrightData(api_key=&quot;your-api-key&quot;, zone=&quot;my_zone&quot;)</span>
+<span class="sd">        proxy_provider = BrightData(api_key="your-api-key", zone="my_zone")</span>
 
 <span class="sd">        # Fetch proxies</span>
 <span class="sd">        proxies = proxy_provider.list_proxies() # returns one proxy for super proxy by default</span>
 
 <span class="sd">        # If you want to manage specific IPs</span>
-<span class="sd">        proxy_provider = BrightData(api_key=&quot;your-api-key&quot;, zone=&quot;my_zone&quot;, use_super_proxy=False)</span>
+<span class="sd">        proxy_provider = BrightData(api_key="your-api-key", zone="my_zone", use_super_proxy=False)</span>
 <span class="sd">        proxies = proxy_provider.list_proxies() # returns multiple proxies for each IP in the zone (potentially thousands)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">_BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.brightdata.com&quot;</span>
-    <span class="n">_SUPER_PROXY_ADDRESS</span> <span class="o">=</span> <span class="s2">&quot;brd.superproxy.io&quot;</span>
+    <span class="n">_BASE_URL</span> <span class="o">=</span> <span class="s2">"https://api.brightdata.com"</span>
+    <span class="n">_SUPER_PROXY_ADDRESS</span> <span class="o">=</span> <span class="s2">"brd.superproxy.io"</span>
     <span class="n">_SUPER_PROXY_PORT</span> <span class="o">=</span> <span class="mi">33335</span>
-    <span class="n">_PROTOCOLS</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;https&quot;</span><span class="p">]</span>  <span class="c1"># BrightData supports both HTTP and HTTPS</span>
+    <span class="n">_PROTOCOLS</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"http"</span><span class="p">,</span> <span class="s2">"https"</span><span class="p">]</span>  <span class="c1"># BrightData supports both HTTP and HTTPS</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -140,9 +140,9 @@
             <span class="c1"># Let the super proxy handle the IP rotation</span>
             <span class="k">return</span> <span class="p">[</span>
                 <span class="n">Proxy</span><span class="p">(</span>
-                    <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;super&quot;</span><span class="p">,</span>
+                    <span class="nb">id</span><span class="o">=</span><span class="s2">"super"</span><span class="p">,</span>
                     <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span>
-                    <span class="n">password</span><span class="o">=</span><span class="n">passwords</span><span class="p">[</span><span class="s2">&quot;passwords&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">password</span><span class="o">=</span><span class="n">passwords</span><span class="p">[</span><span class="s2">"passwords"</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
                     <span class="n">proxy_address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_SUPER_PROXY_ADDRESS</span><span class="p">,</span>
                     <span class="n">port</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_SUPER_PROXY_PORT</span><span class="p">,</span>
                     <span class="n">protocols</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_PROTOCOLS</span><span class="p">,</span>
@@ -152,20 +152,20 @@
         <span class="n">proxies</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Fetch all IPs in the zone, and create a proxy for each</span>
-        <span class="c1"># Brightdata doesn&#39;t let us target directly so we tell the superproxy what to do</span>
+        <span class="c1"># Brightdata doesn't let us target directly so we tell the superproxy what to do</span>
         <span class="n">ips</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_all_ips_in_zone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zone</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="n">ips</span><span class="p">:</span>
-            <span class="n">ip_targeted_username</span> <span class="o">=</span> <span class="n">username</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;-ip-</span><span class="si">{</span><span class="n">ip</span><span class="p">[</span><span class="s1">&#39;ip&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">ip_targeted_username</span> <span class="o">=</span> <span class="n">username</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">"-ip-</span><span class="si">{</span><span class="n">ip</span><span class="p">[</span><span class="s1">'ip'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
 
             <span class="n">proxies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">Proxy</span><span class="p">(</span>
-                    <span class="nb">id</span><span class="o">=</span><span class="n">ip</span><span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">],</span>
+                    <span class="nb">id</span><span class="o">=</span><span class="n">ip</span><span class="p">[</span><span class="s2">"ip"</span><span class="p">],</span>
                     <span class="n">username</span><span class="o">=</span><span class="n">ip_targeted_username</span><span class="p">,</span>
-                    <span class="n">password</span><span class="o">=</span><span class="n">passwords</span><span class="p">[</span><span class="s2">&quot;passwords&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">password</span><span class="o">=</span><span class="n">passwords</span><span class="p">[</span><span class="s2">"passwords"</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
                     <span class="n">proxy_address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_SUPER_PROXY_ADDRESS</span><span class="p">,</span>
                     <span class="n">port</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_SUPER_PROXY_PORT</span><span class="p">,</span>
-                    <span class="n">country_code</span><span class="o">=</span><span class="n">ip</span><span class="p">[</span><span class="s2">&quot;country&quot;</span><span class="p">],</span>
+                    <span class="n">country_code</span><span class="o">=</span><span class="n">ip</span><span class="p">[</span><span class="s2">"country"</span><span class="p">],</span>
                     <span class="n">protocols</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_PROTOCOLS</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
@@ -175,7 +175,7 @@
 <div class="viewcode-block" id="BrightData.get_active_zones">
 <a class="viewcode-back" href="../../../proxyproviders.html#proxyproviders.providers.brightdata.BrightData.get_active_zones">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_active_zones</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetches active zones from BrightData API.</span>
+<span class="w">        </span><span class="sd">"""Fetches active zones from BrightData API.</span>
 
 <span class="sd">        Response:</span>
 
@@ -183,38 +183,38 @@
 
 <span class="sd">            [</span>
 <span class="sd">                {</span>
-<span class="sd">                    &quot;name&quot;: &quot;zone1&quot;,</span>
-<span class="sd">                    &quot;type&quot;: &quot;dc&quot;,</span>
+<span class="sd">                    "name": "zone1",</span>
+<span class="sd">                    "type": "dc",</span>
 <span class="sd">                }</span>
 <span class="sd">            ]</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;/zone/get_active_zones&quot;</span><span class="p">,</span> <span class="s2">&quot;GET&quot;</span><span class="p">)</span></div>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">"/zone/get_active_zones"</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BrightData.get_zone_username">
 <a class="viewcode-back" href="../../../proxyproviders.html#proxyproviders.providers.brightdata.BrightData.get_zone_username">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_zone_username</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zone</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetches zone username for the given zone ID from BrightData API.</span>
+<span class="w">        </span><span class="sd">"""Fetches zone username for the given zone ID from BrightData API.</span>
 
-<span class="sd">        Note: this isn&#39;t directly an API endpoint, I&#39;m sort of reconstructing some things here and it seems to behave a little weird.</span>
+<span class="sd">        Note: this isn't directly an API endpoint, I'm sort of reconstructing some things here and it seems to behave a little weird.</span>
 
 <span class="sd">        :param zone: The zone ID to fetch username for</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/status&quot;</span><span class="p">,</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;zone&quot;</span><span class="p">:</span> <span class="n">zone</span><span class="p">})</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/status"</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"zone"</span><span class="p">:</span> <span class="n">zone</span><span class="p">})</span>
 
-        <span class="n">customer</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;customer&quot;</span><span class="p">)</span>
+        <span class="n">customer</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"customer"</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">customer</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ProxyInvalidResponseException</span><span class="p">(</span><span class="s2">&quot;Failed to fetch customer data&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ProxyInvalidResponseException</span><span class="p">(</span><span class="s2">"Failed to fetch customer data"</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;brd-customer-</span><span class="si">{</span><span class="n">customer</span><span class="si">}</span><span class="s2">-zone-</span><span class="si">{</span><span class="n">zone</span><span class="si">}</span><span class="s2">&quot;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"brd-customer-</span><span class="si">{</span><span class="n">customer</span><span class="si">}</span><span class="s2">-zone-</span><span class="si">{</span><span class="n">zone</span><span class="si">}</span><span class="s2">"</span></div>
 
 
 <div class="viewcode-block" id="BrightData.get_zone_passwords">
 <a class="viewcode-back" href="../../../proxyproviders.html#proxyproviders.providers.brightdata.BrightData.get_zone_passwords">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_zone_passwords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zone</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetches zone passwords from BrightData API.</span>
+<span class="w">        </span><span class="sd">"""Fetches zone passwords from BrightData API.</span>
 
 <span class="sd">        :param zone: The zone ID to fetch passwords for</span>
 
@@ -224,20 +224,20 @@
 <span class="sd">        .. code-block:: json</span>
 
 <span class="sd">            {</span>
-<span class="sd">                &quot;passwords&quot;: [</span>
-<span class="sd">                    &quot;password1&quot;,</span>
-<span class="sd">                    &quot;password2&quot;,</span>
+<span class="sd">                "passwords": [</span>
+<span class="sd">                    "password1",</span>
+<span class="sd">                    "password2",</span>
 <span class="sd">                ]</span>
 <span class="sd">            }</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/zone/passwords&quot;</span><span class="p">,</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;zone&quot;</span><span class="p">:</span> <span class="n">zone</span><span class="p">})</span></div>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/zone/passwords"</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"zone"</span><span class="p">:</span> <span class="n">zone</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="BrightData.list_all_ips_in_zone">
 <a class="viewcode-back" href="../../../proxyproviders.html#proxyproviders.providers.brightdata.BrightData.list_all_ips_in_zone">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">list_all_ips_in_zone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zone</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">country</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetches all IPs in a zone from BrightData API.</span>
+<span class="w">        </span><span class="sd">"""Fetches all IPs in a zone from BrightData API.</span>
 
 <span class="sd">        :param zone: The zone ID to fetch IPs for</span>
 <span class="sd">        :param country: Optional 2-letter country code to filter IPs by</span>
@@ -249,16 +249,16 @@
 
 <span class="sd">            [</span>
 <span class="sd">                {</span>
-<span class="sd">                    &quot;ip&quot;: &quot;192.168.1.1&quot;,</span>
-<span class="sd">                    &quot;country&quot;: &quot;US&quot;,</span>
+<span class="sd">                    "ip": "192.168.1.1",</span>
+<span class="sd">                    "country": "US",</span>
 <span class="sd">                }</span>
 <span class="sd">            ]</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;/zone/route_ips&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;zone&quot;</span><span class="p">:</span> <span class="n">zone</span><span class="p">,</span> <span class="s2">&quot;list_countries&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;country&quot;</span><span class="p">:</span> <span class="n">country</span><span class="p">},</span>
+            <span class="sa">f</span><span class="s2">"/zone/route_ips"</span><span class="p">,</span>
+            <span class="s2">"GET"</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"zone"</span><span class="p">:</span> <span class="n">zone</span><span class="p">,</span> <span class="s2">"list_countries"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"country"</span><span class="p">:</span> <span class="n">country</span><span class="p">},</span>
         <span class="p">)</span></div>
 
 
@@ -269,33 +269,33 @@
         <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">json</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Makes a request to the BrightData API.</span>
+<span class="w">        </span><span class="sd">"""Makes a request to the BrightData API.</span>
 
 <span class="sd">        :param path: The path to the endpoint</span>
 <span class="sd">        :param method: The HTTP method to use</span>
 <span class="sd">        :param params: Optional parameters to include in the request</span>
 <span class="sd">        :param json: Optional JSON data to include in the request</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Authorization"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"Bearer </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_key</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_BASE_URL</span><span class="si">}{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_BASE_URL</span><span class="si">}{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
             <span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">json</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ProxyFetchException</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Failed to fetch from BrightData, got status code </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">, text: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Failed to fetch from BrightData, got status code </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">, text: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ProxyInvalidResponseException</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Failed to parse response: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Failed to parse response: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
         <span class="k">return</span> <span class="n">data</span></div>

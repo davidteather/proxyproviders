@@ -81,7 +81,7 @@
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">proxyproviders.providers.brightdata.</span></span><span class="sig-name descname"><span class="pre">BrightData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username_suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_super_proxy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../proxyprovider.html#proxyproviders.proxy_provider.ProxyConfig" title="proxyproviders.proxy_provider.ProxyConfig"><span class="pre">ProxyConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/proxyproviders/providers/brightdata.html#BrightData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.providers.brightdata.BrightData" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="../proxyprovider.html#proxyproviders.proxy_provider.ProxyProvider" title="proxyproviders.proxy_provider.ProxyProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProxyProvider</span></code></a></p>
 <p>BrightData (formerly luminati) is a proxy provider that offers residential and datacenter proxies.</p>
-<p>Create an account <a class="reference external" href="https://get.brightdata.com/davidteather">here</a> (affiliate link).</p>
+<p>Create an account <a class="reference external" href="https://go.dteather.com/brightdata?src=proxyproviders&amp;placement=docstring">here</a> (affiliate link).</p>
 <p>You can find your API key in the account settings <a class="reference external" href="https://brightdata.com/cp/setting/users">here</a> then create “add token” with scope “limit” (<a class="reference external" href="https://docs.brightdata.com/general/account/api-token">BrightData article</a> for more info)</p>
 <p>The BrightData API documentation is <a class="reference external" href="https://docs.brightdata.com/api-reference/account-management-api/Get_active_Zones?playground=open">here</a></p>
 <dl class="field-list simple">
@@ -99,13 +99,13 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">proxyproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">BrightData</span>
 
 <span class="c1"># Initialize the BrightData API client with an API key and a zone</span>
-<span class="n">proxy_provider</span> <span class="o">=</span> <span class="n">BrightData</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">zone</span><span class="o">=</span><span class="s2">&quot;my_zone&quot;</span><span class="p">)</span>
+<span class="n">proxy_provider</span> <span class="o">=</span> <span class="n">BrightData</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">,</span> <span class="n">zone</span><span class="o">=</span><span class="s2">"my_zone"</span><span class="p">)</span>
 
 <span class="c1"># Fetch proxies</span>
 <span class="n">proxies</span> <span class="o">=</span> <span class="n">proxy_provider</span><span class="o">.</span><span class="n">list_proxies</span><span class="p">()</span> <span class="c1"># returns one proxy for super proxy by default</span>
 
 <span class="c1"># If you want to manage specific IPs</span>
-<span class="n">proxy_provider</span> <span class="o">=</span> <span class="n">BrightData</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">zone</span><span class="o">=</span><span class="s2">&quot;my_zone&quot;</span><span class="p">,</span> <span class="n">use_super_proxy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">proxy_provider</span> <span class="o">=</span> <span class="n">BrightData</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">,</span> <span class="n">zone</span><span class="o">=</span><span class="s2">"my_zone"</span><span class="p">,</span> <span class="n">use_super_proxy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">proxies</span> <span class="o">=</span> <span class="n">proxy_provider</span><span class="o">.</span><span class="n">list_proxies</span><span class="p">()</span> <span class="c1"># returns multiple proxies for each IP in the zone (potentially thousands)</span>
 </pre></div>
 </div>
@@ -116,8 +116,8 @@
 <p>Response:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zone1&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dc&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"zone1"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dc"</span><span class="p">,</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">]</span>
 </pre></div>
@@ -147,9 +147,9 @@
 </dl>
 <p>Response:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;passwords&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="s2">&quot;password1&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;password2&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"passwords"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">"password1"</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">"password2"</span><span class="p">,</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="p">}</span>
 </pre></div>
@@ -171,8 +171,8 @@
 <p>Response:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;ip&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;country&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;US&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"ip"</span><span class="p">:</span><span class="w"> </span><span class="s2">"192.168.1.1"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"country"</span><span class="p">:</span><span class="w"> </span><span class="s2">"US"</span><span class="p">,</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">]</span>
 </pre></div>

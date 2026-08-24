@@ -83,7 +83,7 @@
 <a class="viewcode-back" href="../../proxyprovider.html#proxyproviders.proxy_provider.ProxyConfig">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ProxyConfig</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides standard shared configuration options for all proxy providers.</span>
+<span class="w">    </span><span class="sd">"""Provides standard shared configuration options for all proxy providers.</span>
 
 <span class="sd">    Example:</span>
 
@@ -92,26 +92,26 @@
 <span class="sd">        from proxyproviders import Webshare, ProxyConfig</span>
 
 <span class="sd">        config = ProxyConfig(refresh_interval=5)</span>
-<span class="sd">        proxy_provider = Webshare(api_key=&quot;your-api-key&quot;, config=config)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        proxy_provider = Webshare(api_key="your-api-key", config=config)</span>
+<span class="sd">    """</span>
 
     <span class="n">refresh_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">600</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Duration in seconds after which the proxy list is refreshed to fetch new proxies.</span>
-<span class="sd">    Set to 0 to disable automatic refreshing after the initial fetch.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Duration in seconds after which the proxy list is refreshed to fetch new proxies.</span>
+<span class="sd">    Set to 0 to disable automatic refreshing after the initial fetch."""</span></div>
 
 
 
 <div class="viewcode-block" id="ProxyProvider">
 <a class="viewcode-back" href="../../proxyprovider.html#proxyproviders.proxy_provider.ProxyProvider">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ProxyProvider</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Base class for all proxy providers that provides shared functionality across all providers.</span>
 
-<span class="sd">    You&#39;ll need to use a specific provider to fetch proxies and this shouldn&#39;t directly be initialized. However, this class is useful for</span>
+<span class="sd">    You'll need to use a specific provider to fetch proxies and this shouldn't directly be initialized. However, this class is useful for</span>
 <span class="sd">    type hinting and for creating custom providers that are not included in the library, although consider contributing them to the library if you are making them.</span>
 
 <span class="sd">    :param config: Configuration for the proxy provider. View the ProxyConfig class docs for more information.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProxyConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -130,12 +130,12 @@
 <div class="viewcode-block" id="ProxyProvider.list_proxies">
 <a class="viewcode-back" href="../../proxyprovider.html#proxyproviders.proxy_provider.ProxyProvider.list_proxies">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">list_proxies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force_refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Proxy</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Returns the stored proxies.</span>
 <span class="sd">        If a format function is provided, it applies that function to each proxy.</span>
 
 <span class="sd">        :param force_refresh: If True, fetches new proxies even if the list is not considered stale.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">force_refresh</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">should_refresh</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxies</span><span class="p">:</span>
             <span class="n">proxies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_proxies</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_proxies</span><span class="p">(</span><span class="n">proxies</span><span class="p">)</span>
@@ -146,10 +146,10 @@
 
 <div class="viewcode-block" id="ProxyProvider.get_proxy">
 <a class="viewcode-back" href="../../proxyprovider.html#proxyproviders.proxy_provider.ProxyProvider.get_proxy">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;Algorithm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Proxy</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a single proxy using the specified selection algorithm.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"Algorithm"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Proxy</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Get a single proxy using the specified selection algorithm.</span>
 
-<span class="sd">        :param algorithm: Selection algorithm to use. If None, uses the provider&#39;s default RoundRobin algorithm.</span>
+<span class="sd">        :param algorithm: Selection algorithm to use. If None, uses the provider's default RoundRobin algorithm.</span>
 <span class="sd">        :return: Selected proxy</span>
 <span class="sd">        :raises ValueError: If no proxies are available</span>
 
@@ -157,7 +157,7 @@
 <span class="sd">            &gt;&gt;&gt; from proxyproviders import Webshare</span>
 <span class="sd">            &gt;&gt;&gt; from proxyproviders.algorithms import Random, RoundRobin</span>
 <span class="sd">            &gt;&gt;&gt;</span>
-<span class="sd">            &gt;&gt;&gt; provider = Webshare(api_key=&quot;your-key&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; provider = Webshare(api_key="your-key")</span>
 <span class="sd">            &gt;&gt;&gt;</span>
 <span class="sd">            &gt;&gt;&gt; # Uses default RoundRobin (cycles through proxies)</span>
 <span class="sd">            &gt;&gt;&gt; proxy = provider.get_proxy()</span>
@@ -168,11 +168,11 @@
 <span class="sd">            &gt;&gt;&gt; # One-liner with requests</span>
 <span class="sd">            &gt;&gt;&gt; import requests</span>
 <span class="sd">            &gt;&gt;&gt; from proxyproviders.models.proxy import ProxyFormat</span>
-<span class="sd">            &gt;&gt;&gt; requests.get(&quot;https://httpbin.org/ip&quot;, proxies=provider.get_proxy().format(ProxyFormat.REQUESTS))</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            &gt;&gt;&gt; requests.get("https://httpbin.org/ip", proxies=provider.get_proxy().format(ProxyFormat.REQUESTS))</span>
+<span class="sd">        """</span>
         <span class="n">proxies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_proxies</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">proxies</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No proxies available from provider&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"No proxies available from provider"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">algorithm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">algorithm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_algorithm</span>
@@ -185,15 +185,15 @@
     <span class="c1">#</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_fetch_proxies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Proxy</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetch proxies from the provider implementation.</span>
+<span class="w">        </span><span class="sd">"""Fetch proxies from the provider implementation.</span>
 <span class="sd">        This is not meant to be called directly, as it will always pull from the API even if not stale.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span>
 
 <div class="viewcode-block" id="ProxyProvider.should_refresh">
 <a class="viewcode-back" href="../../proxyprovider.html#proxyproviders.proxy_provider.ProxyProvider.should_refresh">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">should_refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if the proxy list should be refreshed based on the refresh_interval.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns True if the proxy list should be refreshed based on the refresh_interval."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxies</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_refresh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
 
@@ -207,7 +207,7 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_proxies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proxies</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Proxy</span><span class="p">]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the list of proxies and updates the last refresh time.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Sets the list of proxies and updates the last refresh time."""</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_proxies</span> <span class="o">=</span> <span class="n">proxies</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_last_refresh</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span></div>

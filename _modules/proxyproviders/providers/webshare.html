@@ -84,9 +84,9 @@
 <div class="viewcode-block" id="Webshare">
 <a class="viewcode-back" href="../../../proxyproviders.html#proxyproviders.providers.webshare.Webshare">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Webshare</span><span class="p">(</span><span class="n">ProxyProvider</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Webshare is a proxy provider that offers residential and datacenter proxies.</span>
+<span class="w">    </span><span class="sd">"""Webshare is a proxy provider that offers residential and datacenter proxies.</span>
 
-<span class="sd">    Create an account for webshare `here &lt;https://www.webshare.io/?referral_code=3x5812idzzzp&gt;`_ (affiliate link) to get started with 10 free data center proxies.</span>
+<span class="sd">    Create an account for webshare `here &lt;https://go.dteather.com/webshare?src=proxyproviders&amp;placement=docstring&gt;`_ (affiliate link) to get started with 10 free data center proxies.</span>
 
 <span class="sd">    You can find your API key in the Webshare dashboard `here &lt;https://dashboard.webshare.io/userapi/keys&gt;`_</span>
 
@@ -103,7 +103,7 @@
 <span class="sd">        from proxyproviders import Webshare</span>
 
 <span class="sd">        # Initialize the Webshare API client with an API key and optional parameters</span>
-<span class="sd">        proxy_provider = Webshare(api_key=&quot;your-api-key&quot;, params={&quot;country_code_in&quot;: &quot;US&quot;})</span>
+<span class="sd">        proxy_provider = Webshare(api_key="your-api-key", params={"country_code_in": "US"})</span>
 
 <span class="sd">        # Fetch proxies</span>
 <span class="sd">        proxies = proxy_provider.list_proxies()</span>
@@ -112,14 +112,14 @@
 <span class="sd">        from proxyproviders import ProxyConfig</span>
 
 <span class="sd">        config = ProxyConfig(refresh_interval=60)</span>
-<span class="sd">        proxy_provider = Webshare(api_key=&quot;your-api-key&quot;, params={&quot;country_code_in&quot;: &quot;US&quot;}, config=config)</span>
+<span class="sd">        proxy_provider = Webshare(api_key="your-api-key", params={"country_code_in": "US"}, config=config)</span>
 
 <span class="sd">        # Fetch proxies</span>
 <span class="sd">        proxies = proxy_provider.list_proxies()</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">_BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;https://proxy.webshare.io/api/v2&quot;</span>
-    <span class="n">_PROTOCOLS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;https&quot;</span><span class="p">]</span>
+    <span class="n">_BASE_URL</span> <span class="o">=</span> <span class="s2">"https://proxy.webshare.io/api/v2"</span>
+    <span class="n">_PROTOCOLS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"http"</span><span class="p">,</span> <span class="s2">"https"</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -132,8 +132,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">search_params</span> <span class="o">=</span> <span class="n">search_params</span> <span class="ow">or</span> <span class="p">{}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_fetch_proxies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Proxy</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetches proxies from Webshare API and converts them to the standardized Proxy format.&quot;&quot;&quot;</span>
-        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Token </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+<span class="w">        </span><span class="sd">"""Fetches proxies from Webshare API and converts them to the standardized Proxy format."""</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"Authorization"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"Token </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_key</span><span class="si">}</span><span class="s2">"</span><span class="p">}</span>
 
         <span class="n">all_proxies</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">page</span> <span class="o">=</span> <span class="mi">0</span>
@@ -141,54 +141,54 @@
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">page</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;direct&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="n">page</span><span class="p">,</span>
-                <span class="s2">&quot;page_size&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                <span class="s2">"mode"</span><span class="p">:</span> <span class="s2">"direct"</span><span class="p">,</span>
+                <span class="s2">"page"</span><span class="p">:</span> <span class="n">page</span><span class="p">,</span>
+                <span class="s2">"page_size"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
             <span class="p">}</span>
 
             <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">default_params</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">search_params</span><span class="p">}</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_BASE_URL</span><span class="si">}</span><span class="s2">/proxy/list&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_BASE_URL</span><span class="si">}</span><span class="s2">/proxy/list"</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span>
                 <span class="p">)</span>
                 <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>  <span class="c1"># Raises HTTPError for bad responses</span>
             <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">ProxyFetchException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to fetch proxies: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+                <span class="k">raise</span> <span class="n">ProxyFetchException</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to fetch proxies: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
             <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
-            <span class="n">proxy_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">)</span>
+            <span class="n">proxy_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"results"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">proxy_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ProxyInvalidResponseException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
 
             <span class="n">all_proxies</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_convert_to_proxy</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span> <span class="k">for</span> <span class="n">proxy</span> <span class="ow">in</span> <span class="n">proxy_data</span><span class="p">])</span>
 
-            <span class="k">if</span> <span class="s2">&quot;page&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_params</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;next&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"page"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_params</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"next"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">break</span>
 
         <span class="k">return</span> <span class="n">all_proxies</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_convert_to_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Proxy</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Converts Webshare&#39;s proxy data to the shared Proxy format.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Converts Webshare's proxy data to the shared Proxy format."""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Proxy</span><span class="p">(</span>
-                <span class="nb">id</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span>
-                <span class="n">username</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">],</span>
-                <span class="n">password</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">],</span>
-                <span class="n">proxy_address</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;proxy_address&quot;</span><span class="p">],</span>
-                <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;port&quot;</span><span class="p">]),</span>
-                <span class="n">country_code</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;country_code&quot;</span><span class="p">),</span>
-                <span class="n">city_name</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;city_name&quot;</span><span class="p">),</span>
-                <span class="n">created_at</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_parse_timestamp</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;created_at&quot;</span><span class="p">)),</span>
+                <span class="nb">id</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+                <span class="n">username</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"username"</span><span class="p">],</span>
+                <span class="n">password</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"password"</span><span class="p">],</span>
+                <span class="n">proxy_address</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"proxy_address"</span><span class="p">],</span>
+                <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"port"</span><span class="p">]),</span>
+                <span class="n">country_code</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"country_code"</span><span class="p">),</span>
+                <span class="n">city_name</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"city_name"</span><span class="p">),</span>
+                <span class="n">created_at</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_parse_timestamp</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"created_at"</span><span class="p">)),</span>
                 <span class="n">protocols</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_PROTOCOLS</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ProxyConversionException</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Failed to convert proxy data: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Failed to convert proxy data: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_parse_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parses an ISO 8601 timestamp string into a datetime object.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Parses an ISO 8601 timestamp string into a datetime object."""</span>
         <span class="k">if</span> <span class="n">timestamp</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">timestamp</span><span class="p">)</span>

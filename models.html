@@ -213,9 +213,9 @@
 </dl>
 <p class="rubric">Example</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">to_url</span><span class="p">()</span>
-<span class="go">&#39;http://user:pass@192.168.1.1:8080&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">to_url</span><span class="p">(</span><span class="s1">&#39;https&#39;</span><span class="p">)</span>
-<span class="go">&#39;https://user:pass@192.168.1.1:8080&#39;</span>
+<span class="go">'http://user:pass@192.168.1.1:8080'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">to_url</span><span class="p">(</span><span class="s1">'https'</span><span class="p">)</span>
+<span class="go">'https://user:pass@192.168.1.1:8080'</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -237,19 +237,19 @@
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">format</span><span class="p">()</span>  <span class="c1"># Default URL string</span>
-<span class="go">&#39;http://user:pass@192.168.1.1:8080&#39;</span>
+<span class="go">'http://user:pass@192.168.1.1:8080'</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ProxyFormat</span><span class="o">.</span><span class="n">REQUESTS</span><span class="p">)</span>
-<span class="go">{&#39;http&#39;: &#39;http://user:pass@192.168.1.1:8080&#39;, &#39;https&#39;: &#39;http://user:pass@192.168.1.1:8080&#39;}</span>
+<span class="go">{'http': 'http://user:pass@192.168.1.1:8080', 'https': 'http://user:pass@192.168.1.1:8080'}</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;curl&#39;</span><span class="p">)</span>  <span class="c1"># String also works</span>
-<span class="go">[&#39;-x&#39;, &#39;http://user:pass@192.168.1.1:8080&#39;]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">'curl'</span><span class="p">)</span>  <span class="c1"># String also works</span>
+<span class="go">['-x', 'http://user:pass@192.168.1.1:8080']</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ProxyFormat</span><span class="o">.</span><span class="n">HTTPX</span><span class="p">)</span>
-<span class="go">{&#39;http://&#39;: &#39;http://user:pass@192.168.1.1:8080&#39;, &#39;https://&#39;: &#39;http://user:pass@192.168.1.1:8080&#39;}</span>
+<span class="go">{'http://': 'http://user:pass@192.168.1.1:8080', 'https://': 'http://user:pass@192.168.1.1:8080'}</span>
 </pre></div>
 </div>
 </dd></dl>

@@ -3,8 +3,8 @@ ProxyProviders Supported Providers
 
 Current Providers Supported:
 
-* `Webshare.io <https://www.webshare.io/?referral_code=3x5812idzzzp>`_ (referral link) - try out 10 free datacenter proxies
-* `BrightData <https://get.brightdata.com/davidteather>`_ (affiliate link)
+* `Webshare.io <https://go.dteather.com/webshare?src=proxyproviders&placement=docs>`_ (referral link) - try out 10 free datacenter proxies
+* `BrightData <https://go.dteather.com/brightdata?src=proxyproviders&placement=docs>`_ (affiliate link)
 
 Don't see a provider you need? Open an issue or submit a PR!
 
