@@ -15,7 +15,7 @@ from ..proxy_provider import ProxyConfig, ProxyProvider
 class Webshare(ProxyProvider):
     """Webshare is a proxy provider that offers residential and datacenter proxies.
 
-    Create an account for webshare `here <https://www.webshare.io/?referral_code=3x5812idzzzp>`_ (affiliate link) to get started with 10 free data center proxies.
+    Create an account for webshare `here <https://go.dteather.com/webshare?src=proxyproviders&placement=docstring>`_ (affiliate link) to get started with 10 free data center proxies.
 
     You can find your API key in the Webshare dashboard `here <https://dashboard.webshare.io/userapi/keys>`_
 

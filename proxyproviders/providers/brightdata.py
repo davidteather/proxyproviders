@@ -10,7 +10,7 @@ from ..proxy_provider import ProxyConfig, ProxyProvider
 class BrightData(ProxyProvider):
     """BrightData (formerly luminati) is a proxy provider that offers residential and datacenter proxies.
 
-    Create an account `here <https://get.brightdata.com/davidteather>`_ (affiliate link).
+    Create an account `here <https://go.dteather.com/brightdata?src=proxyproviders&placement=docstring>`_ (affiliate link).
 
     You can find your API key in the account settings `here <https://brightdata.com/cp/setting/users>`_ then create "add token" with scope "limit" (`BrightData article <https://docs.brightdata.com/general/account/api-token>`_ for more info)
 

@@ -2,7 +2,7 @@
 
 The Unified Python Proxy API for managing proxies with support for BrightData, WebShare, and more.
 
- [![codecov](https://codecov.io/gh/davidteather/proxyproviders/graph/badge.svg?token=MZF0KP7YMA)](https://codecov.io/gh/davidteather/proxyproviders) [![Sponsor Me](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub)](https://github.com/sponsors/davidteather) [![GitHub release (latest by date)](https://img.shields.io/github/v/release/davidteather/proxyproviders)](https://github.com/davidteather/proxyproviders/releases) [![GitHub](https://img.shields.io/github/license/davidteather/proxyproviders)](https://github.com/davidteather/proxyproviders/blob/main/LICENSE) [![Downloads](https://pepy.tech/badge/proxyproviders)](https://pypi.org/project/proxyproviders/) ![](https://visitor-badge.laobi.icu/badge?page_id=davidteather.proxyproviders) [![Support Server](https://img.shields.io/discord/783108952111579166.svg?color=7289da&logo=discord&style=flat-square)](https://discord.gg/yyPhbfma6f) [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&style=flat-square)](https://www.linkedin.com/in/davidteather/)
+ [![codecov](https://codecov.io/gh/davidteather/proxyproviders/graph/badge.svg?token=MZF0KP7YMA)](https://codecov.io/gh/davidteather/proxyproviders) [![Sponsor Me](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub)](https://go.dteather.com/github-sponsors?src=proxyproviders&placement=badge) [![GitHub release (latest by date)](https://img.shields.io/github/v/release/davidteather/proxyproviders)](https://github.com/davidteather/proxyproviders/releases) [![GitHub](https://img.shields.io/github/license/davidteather/proxyproviders)](https://github.com/davidteather/proxyproviders/blob/main/LICENSE) [![Downloads](https://pepy.tech/badge/proxyproviders)](https://pypi.org/project/proxyproviders/) ![](https://visitor-badge.laobi.icu/badge?page_id=davidteather.proxyproviders) [![Support Server](https://img.shields.io/discord/783108952111579166.svg?color=7289da&logo=discord&style=flat-square)](https://go.dteather.com/discord?src=proxyproviders&placement=badge) [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&style=flat-square)](https://www.linkedin.com/in/davidteather/)
 
 ## Table of Contents
 
@@ -17,12 +17,12 @@ The Unified Python Proxy API for managing proxies with support for BrightData, W
 
 You can find the full documentation [here](https://davidteather.github.io/proxyproviders)
 
-**Note:** If you want to learn how to web scrape websites check my [free and open-source course for learning everything web scraping](https://github.com/davidteather/everything-web-scraping)
+**Note:** If you want to learn how to web scrape websites check my [free and open-source course for learning everything web scraping](https://go.dteather.com/everything-web-scraping?src=proxyproviders&placement=readme)
 
 ### How to Support The Project
 
 - Star the repo 😎
-- Consider [sponsoring](https://github.com/sponsors/davidteather) me on GitHub
+- Consider [sponsoring](https://go.dteather.com/github-sponsors?src=proxyproviders&placement=readme) me on GitHub
 - Send me an email or a [LinkedIn](https://www.linkedin.com/in/davidteather/) message about what you're doing with it :D 
 - Submit PRs for issues or any new providers/features :)
 
@@ -43,13 +43,15 @@ Here's a quick bit of code to get you started! There's also a few [examples in t
 
 **📺 Video Tutorial:** [Watch the quick start guide on YouTube](https://youtu.be/h-JouO_orYo) for a walkthrough of getting started with ProxyProviders.
 
-**Note:** If you want to learn how to web scrape websites check my [free and open-source course for learning everything web scraping](https://github.com/davidteather/everything-web-scraping)
+**Note:** If you want to learn how to web scrape websites check my [free and open-source course for learning everything web scraping](https://go.dteather.com/everything-web-scraping?src=proxyproviders&placement=readme)
 
 ### Choose a Proxy Provider
 
 If you already haven't, choose which proxy provider to use. You can find a [list in the documentation](https://davidteather.github.io/proxyproviders/#proxyproviders-supported-providers). After choosing, look at the documentation around the specific provider you've choosen. Where needed, we've laid out steps to get api keys in the documentation. These steps will vary slightly by provider. For this example I'll be using the [Webshare Provider](https://davidteather.github.io/proxyproviders/#proxyproviders.providers.webshare.Webshare) because it's both easy to setup and they give you 10 free data center proxies to test out.
 
-You can create an account on webshare [here](https://www.webshare.io/?referral_code=3x5812idzzzp) (affiliate link), then head into the [API tab](https://dashboard.webshare.io/userapi/keys) on the side and generate a new token. Keep this API token safe and don't post it publically.
+You can create an account on webshare [here](https://go.dteather.com/webshare?src=proxyproviders&placement=readme) (affiliate link), then head into the [API tab](https://dashboard.webshare.io/userapi/keys) on the side and generate a new token. Keep this API token safe and don't post it publically.
+
+If you'd rather use BrightData, you can create an account [here](https://go.dteather.com/brightdata?src=proxyproviders&placement=readme) (affiliate link), then grab an API token from the [account settings](https://brightdata.com/cp/setting/users).
 
 ### Basic Example
 
@@ -109,7 +111,7 @@ ws.list_proxies() # calls API since it's more than 3s later
 
 ### Function Using Generic ProxyProvider
 
-Since all proxy providers implement the same interface, we can make a function that allows us to easily swap out and utilize different providers. This is the main appeal of having a unified interface. It allows other modules to be provider agnostic, like my [TikTokAPI](https://github.com/davidteather/TikTok-Api) package.
+Since all proxy providers implement the same interface, we can make a function that allows us to easily swap out and utilize different providers. This is the main appeal of having a unified interface. It allows other modules to be provider agnostic, like my [TikTokAPI](https://go.dteather.com/tiktokapi?src=proxyproviders&placement=readme) package.
 
 ```py
 from proxyproviders import Webshare, BrightData, ProxyProvider, ProxyConfig
