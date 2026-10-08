@@ -65,8 +65,40 @@ class TestProxyToUrl:
             port=8080,
         )
         url = proxy.to_url()
-        expected = "http://user@domain.com:pass:word!@192.168.1.1:8080"
+        expected = "http://user%40domain.com:pass%3Aword%21@192.168.1.1:8080"
         assert url == expected
+
+    @pytest.mark.parametrize("password", ["p#ss", "pa/ss", "p?ss", "p@ss", "p%41ss"])
+    def test_to_url_round_trips_credentials(self, password):
+        """The URL parses back to the same host, username and password."""
+        from urllib.parse import unquote, urlsplit
+
+        proxy = Proxy(
+            id="rt",
+            username="user-country-us",
+            password=password,
+            proxy_address="proxy.example.com",
+            port=8080,
+        )
+        parts = urlsplit(proxy.to_url())
+        assert (parts.hostname, parts.port) == ("proxy.example.com", 8080)
+        assert unquote(parts.username) == "user-country-us"
+        assert unquote(parts.password) == password
+
+    def test_playwright_format_keeps_raw_credentials(self):
+        """Playwright takes the fields separately, so they are not encoded."""
+        proxy = Proxy(
+            id="pw",
+            username="user",
+            password="p#ss/w?rd",
+            proxy_address="proxy.example.com",
+            port=8080,
+        )
+        assert proxy.format(ProxyFormat.PLAYWRIGHT) == {
+            "server": "http://proxy.example.com:8080",
+            "username": "user",
+            "password": "p#ss/w?rd",
+        }
 
 
 class TestProxyFormat:
