@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Optional, Union
+from urllib.parse import quote
 
 
 class ProxyFormat(Enum):
@@ -61,7 +62,10 @@ class Proxy:
         """Convert proxy to URL format for use with HTTP clients.
 
         :param protocol: The protocol to use in the URL (default: 'http')
-        :return: Proxy URL in format 'protocol://username:password@host:port'
+        :return: Proxy URL in format 'protocol://username:password@host:port'.
+            The username and password are percent-encoded, so characters such
+            as ``@``, ``:``, ``#`` or ``/`` in them do not change where the URL
+            points.
 
         Example:
             >>> proxy.to_url()
@@ -69,7 +73,9 @@ class Proxy:
             >>> proxy.to_url('https')
             'https://user:pass@192.168.1.1:8080'
         """
-        return f"{protocol}://{self.username}:{self.password}@{self.proxy_address}:{self.port}"
+        username = quote(self.username, safe="")
+        password = quote(self.password, safe="")
+        return f"{protocol}://{username}:{password}@{self.proxy_address}:{self.port}"
 
     def format(
         self, format_type: Union[ProxyFormat, str] = ProxyFormat.URL, **kwargs
