@@ -1,0 +1,52 @@
+# ProxyProviders
+
+> Python library giving one interface to proxy vendors (Webshare, Bright Data, or your own list of proxies) and converting each proxy into the shape that requests, httpx, aiohttp, Playwright, Scrapy, Crawlee and curl expect. Install with `pip install proxyproviders`. Python 3.10+.
+
+Core API, all importable from `proxyproviders`:
+
+- `Webshare(api_key=..., search_params={...})`, `BrightData(api_key=..., zone=...)`, `ProxyList([...])`: providers. `ProxyList` takes proxy URLs or `host:port:user:pass` strings, and `ProxyList.from_file(path)` reads one per line.
+- `provider.list_proxies()` returns every `Proxy`. `provider.get_proxy(algorithm=None)` returns one, round robin by default. Both are synchronous and thread-safe.
+- `proxy.format(ProxyFormat.X)` converts a proxy for a client. `proxy.to_url()` gives `scheme://user:pass@host:port` with credentials percent-encoded.
+- `Proxy.from_string(text)` parses a URL, `user:pass@host:port`, `host:port` or `host:port:user:pass`.
+- `RotatingSession(provider, max_retries=2, retry_statuses=())`: a `requests.Session` that picks a proxy per request and retries on the next proxy when one fails. It never resends a POST that may have reached the target, never retries file uploads, and always treats a 407 response as a failed proxy.
+- `RotatingTransport` and `AsyncRotatingTransport` in `proxyproviders.httpx_transport` do the same for httpx: `httpx.AsyncClient(transport=AsyncRotatingTransport(provider))`. Needs `pip install "proxyproviders[httpx]"` (httpx 0.26 or newer).
+- `provider.report_failure(proxy)` makes `get_proxy()` avoid a proxy for `ProxyConfig.failure_cooldown` seconds. `provider.report_success(proxy)` undoes it.
+- `ProxyConfig(refresh_interval=600, timeout=30, refresh_retry_delay=30, failure_cooldown=60)` is passed as `config=` to any provider.
+- Selection algorithms in `proxyproviders.algorithms`: `RoundRobin`, `Random`, `First`, or subclass `Algorithm` and implement `select(proxies)`.
+
+Formats and where each one goes:
+
+- `ProxyFormat.REQUESTS`: dict for `requests.get(url, proxies=...)`
+- `ProxyFormat.HTTPX`: URL string for `httpx.Client(proxy=...)` and `httpx.AsyncClient(proxy=...)`
+- `ProxyFormat.AIOHTTP`: URL string for `session.get(url, proxy=...)`
+- `ProxyFormat.PLAYWRIGHT`: dict for `browser.new_context(proxy=...)` or `launch(proxy=...)`
+- `ProxyFormat.SCRAPY`: URL string for `scrapy.Request(url, meta={"proxy": ...})`
+- `ProxyFormat.URLLIB`: dict for `urllib.request.ProxyHandler(...)`
+- `ProxyFormat.CURL`: `["-x", url]` arguments for curl
+- `ProxyFormat.ENV`: `HTTP_PROXY` / `HTTPS_PROXY` environment variables for subprocesses
+- `ProxyFormat.HOST_PORT_USER_PASS`: `host:port:username:password`
+- `ProxyFormat.URL`: plain proxy URL
+- Crawlee: `ProxyConfiguration(proxy_urls=[p.to_url() for p in provider.list_proxies()])`
+
+Minimal example:
+
+```python
+import requests
+from proxyproviders import Webshare, ProxyFormat
+
+provider = Webshare(api_key="your-api-key")
+proxy = provider.get_proxy()
+response = requests.get("https://httpbin.org/ip", proxies=proxy.format(ProxyFormat.REQUESTS))
+```
+
+Common mistakes:
+
+- The Webshare option is `search_params=`, not `params=`.
+- `ProxyFormat.HTTPX` is a string for `proxy=`, which needs httpx 0.26 or newer. httpx removed the `proxies=` argument.
+- `list_proxies()` and `get_proxy()` are not coroutines; do not `await` them.
+- SOCKS proxies need `pip install "proxyproviders[socks]"` for requests, or `httpx[socks]` for httpx.
+
+## Docs
+
+- [Documentation](https://davidteather.github.io/proxyproviders/): quick start and full API reference
+- [Source and examples](https://github.com/davidteather/proxyproviders)

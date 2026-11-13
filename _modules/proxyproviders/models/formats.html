@@ -1,0 +1,385 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>proxyproviders.models.formats &mdash; ProxyProviders 0.3.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+    <link rel="canonical" href="https://davidteather.github.io/proxyproviders/_modules/proxyproviders/models/formats.html" />
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=e259d695"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            ProxyProviders
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ProxyProviders</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">proxyproviders.models.formats</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for proxyproviders.models.formats</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Converters between :class:`~proxyproviders.models.proxy.Proxy` and the shapes that HTTP</span>
+<span class="sd">clients, browsers and tools expect.</span>
+
+<span class="sd">Each output format is one small function registered in ``_FORMATTERS``. Adding a format</span>
+<span class="sd">means adding a :class:`ProxyFormat` member and a function here; nothing else changes.</span>
+<span class="sd">Parsing the other way (text to proxy fields) lives in :func:`parse_proxy_string`.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">unquote</span><span class="p">,</span> <span class="n">urlsplit</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.proxy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Proxy</span>
+
+<span class="n">FormattedProxy</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+<span class="sd">"""Every shape :meth:`Proxy.format` can return."""</span>
+
+<span class="c1"># Schemes a proxy can be reached over that are not plain HTTP proxies.</span>
+<span class="n">SOCKS_SCHEMES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"socks5"</span><span class="p">,</span> <span class="s2">"socks5h"</span><span class="p">,</span> <span class="s2">"socks4"</span><span class="p">,</span> <span class="s2">"socks4a"</span><span class="p">)</span>
+<span class="c1"># URL schemes of the *target* request that HTTP clients key their proxy maps on.</span>
+<span class="n">TARGET_SCHEMES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"http"</span><span class="p">,</span> <span class="s2">"https"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ProxyFormat">
+<a class="viewcode-back" href="../../../models.html#proxyproviders.models.proxy.ProxyFormat">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProxyFormat</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Supported proxy output formats."""</span>
+
+    <span class="n">REQUESTS</span> <span class="o">=</span> <span class="s2">"requests"</span>
+<span class="w">    </span><span class="sd">"""``{"http": url, "https": url}`` for the ``proxies=`` argument of requests"""</span>
+
+    <span class="n">CURL</span> <span class="o">=</span> <span class="s2">"curl"</span>
+<span class="w">    </span><span class="sd">"""``["-x", url]`` arguments for the curl command line"""</span>
+
+    <span class="n">HTTPX</span> <span class="o">=</span> <span class="s2">"httpx"</span>
+<span class="w">    </span><span class="sd">"""URL string for the ``proxy=`` argument of ``httpx.Client`` / ``httpx.AsyncClient``"""</span>
+
+    <span class="n">AIOHTTP</span> <span class="o">=</span> <span class="s2">"aiohttp"</span>
+<span class="w">    </span><span class="sd">"""URL string for the ``proxy=`` argument of aiohttp requests and sessions"""</span>
+
+    <span class="n">PLAYWRIGHT</span> <span class="o">=</span> <span class="s2">"playwright"</span>
+<span class="w">    </span><span class="sd">"""``{"server", "username", "password"}`` for the ``proxy=`` option of Playwright"""</span>
+
+    <span class="n">URL</span> <span class="o">=</span> <span class="s2">"url"</span>
+<span class="w">    </span><span class="sd">"""``scheme://username:password@host:port`` URL string"""</span>
+
+    <span class="n">SCRAPY</span> <span class="o">=</span> <span class="s2">"scrapy"</span>
+<span class="w">    </span><span class="sd">"""URL string for ``Request(meta={"proxy": ...})`` in Scrapy"""</span>
+
+    <span class="n">URLLIB</span> <span class="o">=</span> <span class="s2">"urllib"</span>
+<span class="w">    </span><span class="sd">"""``{"http": url, "https": url}`` for ``urllib.request.ProxyHandler``"""</span>
+
+    <span class="n">ENV</span> <span class="o">=</span> <span class="s2">"env"</span>
+<span class="w">    </span><span class="sd">"""``HTTP_PROXY`` / ``HTTPS_PROXY`` (and ``ALL_PROXY`` for SOCKS) environment variables,</span>
+<span class="sd">    in upper and lower case, for subprocesses and tools that read them"""</span>
+
+    <span class="n">HOST_PORT_USER_PASS</span> <span class="o">=</span> <span class="s2">"host_port_user_pass"</span>
+<span class="w">    </span><span class="sd">"""``host:port:username:password``, the plain-text line many proxy tools import"""</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">host_for_url</span><span class="p">(</span><span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""An IPv6 address needs square brackets wherever it is followed by ``:port``."""</span>
+    <span class="k">if</span> <span class="s2">":"</span> <span class="ow">in</span> <span class="n">host</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">host</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"["</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">]"</span>
+    <span class="k">return</span> <span class="n">host</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_url</span><span class="p">(</span><span class="n">proxy</span><span class="p">:</span> <span class="s2">"Proxy"</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">proxy</span><span class="o">.</span><span class="n">to_url</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"protocol"</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_proxy_url</span><span class="p">(</span><span class="n">proxy</span><span class="p">:</span> <span class="s2">"Proxy"</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Clients that take one proxy URL and use it for every request."""</span>
+    <span class="k">return</span> <span class="n">proxy</span><span class="o">.</span><span class="n">to_url</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_scheme_map</span><span class="p">(</span><span class="n">proxy</span><span class="p">:</span> <span class="s2">"Proxy"</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Format proxy for requests and urllib.</span>
+
+<span class="sd">    The keys are the schemes of the *target* URL that the client matches on, so only</span>
+<span class="sd">    ``http``/``https`` are taken from the proxy's ``protocols``; SOCKS schemes there</span>
+<span class="sd">    never become keys. A proxy that lists just one of them gets just that key, and</span>
+<span class="sd">    requests to the other scheme are not proxied. Pass ``protocols`` to choose the</span>
+<span class="sd">    keys yourself. The value is how to reach the proxy, which is where a SOCKS scheme</span>
+<span class="sd">    belongs.</span>
+<span class="sd">    """</span>
+    <span class="n">protocols</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"protocols"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">protocols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">supported</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="n">proxy</span><span class="o">.</span><span class="n">protocols</span> <span class="ow">or</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">TARGET_SCHEMES</span><span class="p">]</span>
+        <span class="n">protocols</span> <span class="o">=</span> <span class="n">supported</span> <span class="ow">or</span> <span class="nb">list</span><span class="p">(</span><span class="n">TARGET_SCHEMES</span><span class="p">)</span>
+    <span class="n">proxy_url</span> <span class="o">=</span> <span class="n">proxy</span><span class="o">.</span><span class="n">to_url</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">protocol</span><span class="p">:</span> <span class="n">proxy_url</span> <span class="k">for</span> <span class="n">protocol</span> <span class="ow">in</span> <span class="n">protocols</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_curl</span><span class="p">(</span><span class="n">proxy</span><span class="p">:</span> <span class="s2">"Proxy"</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="p">[</span><span class="s2">"-x"</span><span class="p">,</span> <span class="n">proxy</span><span class="o">.</span><span class="n">to_url</span><span class="p">()]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_playwright</span><span class="p">(</span><span class="n">proxy</span><span class="p">:</span> <span class="s2">"Proxy"</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="c1"># Playwright wants the scheme in "server", e.g. 'http://ip:port' or 'socks5://ip:port'</span>
+    <span class="n">protocol</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"protocol"</span><span class="p">,</span> <span class="s2">"http"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">proxy</span><span class="o">.</span><span class="n">protocols</span> <span class="ow">and</span> <span class="n">protocol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">proxy</span><span class="o">.</span><span class="n">protocols</span><span class="p">:</span>
+        <span class="c1"># The requested protocol is not one the proxy supports, so use its first</span>
+        <span class="n">protocol</span> <span class="o">=</span> <span class="n">proxy</span><span class="o">.</span><span class="n">protocols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">host</span> <span class="o">=</span> <span class="n">host_for_url</span><span class="p">(</span><span class="n">proxy</span><span class="o">.</span><span class="n">proxy_address</span><span class="p">)</span>
+    <span class="n">playwright_proxy</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"server"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">protocol</span><span class="si">}</span><span class="s2">://</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">proxy</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">"</span><span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">proxy</span><span class="o">.</span><span class="n">username</span> <span class="ow">and</span> <span class="n">proxy</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
+        <span class="n">playwright_proxy</span><span class="p">[</span><span class="s2">"username"</span><span class="p">]</span> <span class="o">=</span> <span class="n">proxy</span><span class="o">.</span><span class="n">username</span>
+        <span class="n">playwright_proxy</span><span class="p">[</span><span class="s2">"password"</span><span class="p">]</span> <span class="o">=</span> <span class="n">proxy</span><span class="o">.</span><span class="n">password</span>
+
+    <span class="k">return</span> <span class="n">playwright_proxy</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_env</span><span class="p">(</span><span class="n">proxy</span><span class="p">:</span> <span class="s2">"Proxy"</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="n">proxy_url</span> <span class="o">=</span> <span class="n">proxy</span><span class="o">.</span><span class="n">to_url</span><span class="p">()</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"HTTP_PROXY"</span><span class="p">,</span> <span class="s2">"HTTPS_PROXY"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">proxy</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">in</span> <span class="n">SOCKS_SCHEMES</span><span class="p">:</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"ALL_PROXY"</span><span class="p">)</span>
+    <span class="n">env</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="c1"># Tools disagree on case (curl only reads lowercase http_proxy), so set both</span>
+        <span class="n">env</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">proxy_url</span>
+        <span class="n">env</span><span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="n">proxy_url</span>
+    <span class="k">return</span> <span class="n">env</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_host_port_user_pass</span><span class="p">(</span><span class="n">proxy</span><span class="p">:</span> <span class="s2">"Proxy"</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">host_for_url</span><span class="p">(</span><span class="n">proxy</span><span class="o">.</span><span class="n">proxy_address</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">proxy</span><span class="o">.</span><span class="n">port</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">proxy</span><span class="o">.</span><span class="n">username</span> <span class="ow">or</span> <span class="n">proxy</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
+        <span class="n">parts</span> <span class="o">+=</span> <span class="p">[</span><span class="n">proxy</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="n">proxy</span><span class="o">.</span><span class="n">password</span><span class="p">]</span>
+    <span class="k">return</span> <span class="s2">":"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+
+
+<span class="n">_FORMATTERS</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">ProxyFormat</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">FormattedProxy</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">URL</span><span class="p">:</span> <span class="n">_format_url</span><span class="p">,</span>
+    <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">REQUESTS</span><span class="p">:</span> <span class="n">_format_scheme_map</span><span class="p">,</span>
+    <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">URLLIB</span><span class="p">:</span> <span class="n">_format_scheme_map</span><span class="p">,</span>
+    <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">CURL</span><span class="p">:</span> <span class="n">_format_curl</span><span class="p">,</span>
+    <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">HTTPX</span><span class="p">:</span> <span class="n">_format_proxy_url</span><span class="p">,</span>
+    <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">AIOHTTP</span><span class="p">:</span> <span class="n">_format_proxy_url</span><span class="p">,</span>
+    <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">SCRAPY</span><span class="p">:</span> <span class="n">_format_proxy_url</span><span class="p">,</span>
+    <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">PLAYWRIGHT</span><span class="p">:</span> <span class="n">_format_playwright</span><span class="p">,</span>
+    <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">ENV</span><span class="p">:</span> <span class="n">_format_env</span><span class="p">,</span>
+    <span class="n">ProxyFormat</span><span class="o">.</span><span class="n">HOST_PORT_USER_PASS</span><span class="p">:</span> <span class="n">_format_host_port_user_pass</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="format_proxy">
+<a class="viewcode-back" href="../../../models.html#proxyproviders.models.proxy.format_proxy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_proxy</span><span class="p">(</span>
+    <span class="n">proxy</span><span class="p">:</span> <span class="s2">"Proxy"</span><span class="p">,</span> <span class="n">format_type</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ProxyFormat</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FormattedProxy</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Format ``proxy`` as ``format_type``. See :meth:`Proxy.format`."""</span>
+    <span class="c1"># Convert to ProxyFormat enum, handling both string and enum inputs</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">format_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">format_type</span> <span class="o">=</span> <span class="n">ProxyFormat</span><span class="p">(</span><span class="n">format_type</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Invalid format type: '</span><span class="si">{</span><span class="n">format_type</span><span class="si">}</span><span class="s2">'. Valid options are: </span><span class="si">{</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">ProxyFormat</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">format_type</span><span class="p">,</span> <span class="n">ProxyFormat</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>  <span class="c1"># pyright: ignore[reportUnreachable] this is actually reachable</span>
+            <span class="sa">f</span><span class="s2">"Invalid format type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">format_type</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. Expected ProxyFormat enum or string."</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_FORMATTERS</span><span class="p">[</span><span class="n">format_type</span><span class="p">](</span><span class="n">proxy</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_protocols_for_scheme</span><span class="p">(</span><span class="n">scheme</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">scheme</span> <span class="o">=</span> <span class="n">scheme</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">scheme</span> <span class="o">==</span> <span class="s2">"http"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">TARGET_SCHEMES</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="n">SOCKS_SCHEMES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">scheme</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">scheme</span> <span class="o">==</span> <span class="s2">"https"</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">"An 'https://' proxy URL means TLS to the proxy itself, which Proxy does not "</span>
+            <span class="s2">"model. Proxies that carry HTTPS traffic are normally written 'http://'."</span>
+        <span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Unsupported proxy scheme '</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s2">'. Use http or one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">SOCKS_SCHEMES</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_port</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid port '</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">' in proxy '</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">port</span> <span class="o">&lt;</span> <span class="mi">65536</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Port </span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2"> is out of range in proxy '</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">port</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_host</span><span class="p">(</span><span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">character</span><span class="o">.</span><span class="n">isspace</span><span class="p">()</span> <span class="k">for</span> <span class="n">character</span> <span class="ow">in</span> <span class="n">host</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid host in proxy '</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">host</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_split_host_port_line</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Split ``host:port[:user:pass]`` into its pieces, or None if it is not that form.</span>
+
+<span class="sd">    The host may be a bracketed IPv6 address. The password is everything after the third</span>
+<span class="sd">    separator, so it may contain ``:`` and ``@``.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"["</span><span class="p">):</span>
+        <span class="n">host</span><span class="p">,</span> <span class="n">bracket</span><span class="p">,</span> <span class="n">rest</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">"]"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bracket</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">rest</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">":"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">pieces</span> <span class="o">=</span> <span class="p">[</span><span class="n">host</span><span class="p">,</span> <span class="o">*</span><span class="n">rest</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pieces</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pieces</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">pieces</span>
+
+
+<div class="viewcode-block" id="parse_proxy_string">
+<a class="viewcode-back" href="../../../models.html#proxyproviders.models.proxy.parse_proxy_string">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_proxy_string</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Parse one proxy written as text into the fields of a :class:`Proxy`.</span>
+
+<span class="sd">    Accepted forms:</span>
+
+<span class="sd">    * a URL: ``http://user:pass@host:port``, ``socks5://host:port``</span>
+<span class="sd">    * ``host:port:user:pass``, the line format many providers export, and ``host:port``</span>
+<span class="sd">    * ``user:pass@host:port`` (treated as http)</span>
+
+<span class="sd">    Percent-encoded credentials in a URL are decoded. In ``host:port:user:pass`` the</span>
+<span class="sd">    password is everything after the third colon, so it may itself contain ``:`` or</span>
+<span class="sd">    ``@``. An IPv6 host is written in square brackets, e.g. ``[2001:db8::1]:8080``.</span>
+
+<span class="sd">    :raises ValueError: if the text is not one of these forms</span>
+<span class="sd">    """</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot parse an empty proxy string"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">"://"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="c1"># Why: tried before the URL form so an '@' in a password is not read as user@host</span>
+        <span class="n">pieces</span> <span class="o">=</span> <span class="n">_split_host_port_line</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pieces</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">"proxy_address"</span><span class="p">:</span> <span class="n">_check_host</span><span class="p">(</span><span class="n">pieces</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">source</span><span class="p">),</span>
+                <span class="s2">"port"</span><span class="p">:</span> <span class="n">_parse_port</span><span class="p">(</span><span class="n">pieces</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">source</span><span class="p">),</span>
+                <span class="s2">"username"</span><span class="p">:</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pieces</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span> <span class="k">else</span> <span class="s2">""</span><span class="p">,</span>
+                <span class="s2">"password"</span><span class="p">:</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pieces</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span> <span class="k">else</span> <span class="s2">""</span><span class="p">,</span>
+                <span class="s2">"protocols"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">TARGET_SCHEMES</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="k">if</span> <span class="s2">"@"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Cannot parse proxy '</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">'. Expected a URL, 'host:port' or "</span>
+                <span class="s2">"'host:port:username:password'."</span>
+            <span class="p">)</span>
+
+    <span class="n">url</span> <span class="o">=</span> <span class="n">text</span> <span class="k">if</span> <span class="s2">"://"</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"http://</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">urlsplit</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">protocols</span> <span class="o">=</span> <span class="n">_protocols_for_scheme</span><span class="p">(</span><span class="n">parts</span><span class="o">.</span><span class="n">scheme</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="n">parts</span><span class="o">.</span><span class="n">port</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid port in proxy '</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parts</span><span class="o">.</span><span class="n">hostname</span> <span class="ow">or</span> <span class="n">port</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Proxy '</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">' needs both a host and a port"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parts</span><span class="o">.</span><span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"/"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">parts</span><span class="o">.</span><span class="n">query</span> <span class="ow">or</span> <span class="n">parts</span><span class="o">.</span><span class="n">fragment</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Proxy '</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">' has a path or query, which a proxy address cannot have"</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"proxy_address"</span><span class="p">:</span> <span class="n">_check_host</span><span class="p">(</span><span class="n">parts</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span> <span class="n">source</span><span class="p">),</span>
+        <span class="s2">"port"</span><span class="p">:</span> <span class="n">_parse_port</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">port</span><span class="p">),</span> <span class="n">source</span><span class="p">),</span>
+        <span class="s2">"username"</span><span class="p">:</span> <span class="n">unquote</span><span class="p">(</span><span class="n">parts</span><span class="o">.</span><span class="n">username</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"password"</span><span class="p">:</span> <span class="n">unquote</span><span class="p">(</span><span class="n">parts</span><span class="o">.</span><span class="n">password</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"protocols"</span><span class="p">:</span> <span class="n">protocols</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, David Teather.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

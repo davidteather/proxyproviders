@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>proxyproviders.session &mdash; ProxyProviders 0.3.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+    <link rel="canonical" href="https://davidteather.github.io/proxyproviders/_modules/proxyproviders/session.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=e259d695"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            ProxyProviders
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ProxyProviders</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">proxyproviders.session</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for proxyproviders.session</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""An opt-in ``requests.Session`` that picks a proxy for every request.</span>
+
+<span class="sd">Nothing else in the package uses this module. Import it when you want rotation and</span>
+<span class="sd">retries handled for you instead of calling ``provider.get_proxy()`` yourself.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib3.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConnectTimeoutError</span><span class="p">,</span> <span class="n">NewConnectionError</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models.proxy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Proxy</span><span class="p">,</span> <span class="n">ProxyFormat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.proxy_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProxyProvider</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Algorithm</span>
+
+<span class="c1"># Why: a dropped connection may mean the server already acted, so only these are resent</span>
+<span class="n">_IDEMPOTENT_METHODS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">"GET"</span><span class="p">,</span> <span class="s2">"HEAD"</span><span class="p">,</span> <span class="s2">"OPTIONS"</span><span class="p">})</span>
+
+<span class="c1"># 407 Proxy Authentication Required can only come from the proxy, never the target</span>
+<span class="n">_ALWAYS_PROXY_FAILURE_STATUSES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="mi">407</span><span class="p">})</span>
+
+<span class="n">_REQUEST_SIGNATURE</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="o">.</span><span class="n">request</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_never_sent</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Whether a failed request is known not to have reached the target.</span>
+
+<span class="sd">    True only when the failure was in connecting to the proxy, or in opening the tunnel</span>
+<span class="sd">    through it. ``requests`` also raises ``ProxyError`` when a proxy drops the connection</span>
+<span class="sd">    *after* relaying the request, so the exception type alone does not answer this.</span>
+<span class="sd">    """</span>
+    <span class="c1"># Why: __context__ is not followed, it holds whatever the *caller* was handling</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">pending</span> <span class="o">=</span> <span class="p">[</span><span class="n">error</span><span class="p">]</span>
+    <span class="k">while</span> <span class="n">pending</span><span class="p">:</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">pending</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">id</span><span class="p">(</span><span class="n">current</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">current</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="p">(</span><span class="n">NewConnectionError</span><span class="p">,</span> <span class="n">ConnectTimeoutError</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectTimeout</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"Tunnel connection failed"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">current</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="n">linked</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="s2">"reason"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="s2">"original_error"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">current</span><span class="o">.</span><span class="n">__cause__</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">current</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">pending</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">linked</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="ne">BaseException</span><span class="p">))</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="RotatingSession">
+<a class="viewcode-back" href="../../session.html#proxyproviders.session.RotatingSession">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RotatingSession</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A ``requests.Session`` that routes each request through a proxy from a provider.</span>
+
+<span class="sd">    Every request asks the provider for a proxy. If the request fails to get through the</span>
+<span class="sd">    proxy, the proxy is reported with</span>
+<span class="sd">    :meth:`~proxyproviders.proxy_provider.ProxyProvider.report_failure` and the request</span>
+<span class="sd">    is tried again on the next one, up to ``max_retries`` more times. It works with any</span>
+<span class="sd">    provider, including :class:`~proxyproviders.providers.proxy_list.ProxyList`.</span>
+
+<span class="sd">    What counts as a failed proxy, and when the request is sent again:</span>
+
+<span class="sd">    * Failing to connect to the proxy, or to open a tunnel through it: retried for any</span>
+<span class="sd">      HTTP method, because the request never reached the target.</span>
+<span class="sd">    * Any other connection error or timeout, such as a proxy that drops the connection</span>
+<span class="sd">      or stops responding: retried for ``GET``, ``HEAD`` and ``OPTIONS`` only. Other</span>
+<span class="sd">      methods may already have been acted on, so the error is raised instead.</span>
+<span class="sd">    * A ``407 Proxy Authentication Required`` response, or any status you list in</span>
+<span class="sd">      ``retry_statuses``: retried for any method.</span>
+
+<span class="sd">    Anything else, including ordinary error statuses such as 404 or 500, is returned or</span>
+<span class="sd">    raised exactly as ``requests`` would. A TLS error is raised without blaming the</span>
+<span class="sd">    proxy, since it usually comes from the target. A slow target cannot be told apart</span>
+<span class="sd">    from a slow proxy, so a read timeout counts against the proxy. Deciding that a</span>
+<span class="sd">    response means "banned" is left to you: list statuses in ``retry_statuses`` or call</span>
+<span class="sd">    ``report_failure`` yourself.</span>
+
+<span class="sd">    A request made with an explicit ``proxies=`` argument is sent as given, with no</span>
+<span class="sd">    rotation. Requests that upload files or stream their body are sent once and never</span>
+<span class="sd">    retried, since the body cannot be read twice.</span>
+
+<span class="sd">    :param provider: Where proxies come from</span>
+<span class="sd">    :param algorithm: Selection algorithm, as for ``provider.get_proxy()``. Defaults to the</span>
+<span class="sd">        provider's round robin.</span>
+<span class="sd">    :param max_retries: How many more proxies to try after the first one fails</span>
+<span class="sd">    :param retry_statuses: Extra response status codes treated as a failed proxy, e.g.</span>
+<span class="sd">        ``{403, 429}`` for a target that blocks proxies. 407 is always included.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        from proxyproviders import Webshare</span>
+<span class="sd">        from proxyproviders.session import RotatingSession</span>
+
+<span class="sd">        session = RotatingSession(Webshare(api_key="your-api-key"), max_retries=3)</span>
+
+<span class="sd">        response = session.get("https://httpbin.org/ip", timeout=10)</span>
+<span class="sd">        print(response.json(), session.last_proxy)</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">provider</span><span class="p">:</span> <span class="n">ProxyProvider</span><span class="p">,</span>
+        <span class="n">algorithm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"Algorithm"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">retry_statuses</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">max_retries</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"max_retries must be 0 or more"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">provider</span> <span class="o">=</span> <span class="n">provider</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span> <span class="o">=</span> <span class="n">algorithm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">=</span> <span class="n">max_retries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">retry_statuses</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">retry_statuses</span><span class="p">)</span> <span class="o">|</span> <span class="n">_ALWAYS_PROXY_FAILURE_STATUSES</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_proxy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Proxy</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">        </span><span class="sd">"""The proxy used for the most recent request, whether it succeeded or not."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_local</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">local</span><span class="p">()</span>
+
+<div class="viewcode-block" id="RotatingSession.request">
+<a class="viewcode-back" href="../../session.html#proxyproviders.session.RotatingSession.request">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">request</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">],</span>
+        <span class="n">url</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">],</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Send a request through a proxy from the provider, retrying on the next proxy</span>
+<span class="sd">        if this one fails. Takes the same arguments as ``requests.Session.request``."""</span>
+        <span class="n">bound</span> <span class="o">=</span> <span class="n">_REQUEST_SIGNATURE</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">bound</span><span class="o">.</span><span class="n">arguments</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"self"</span><span class="p">,</span> <span class="s2">"method"</span><span class="p">,</span> <span class="s2">"url"</span><span class="p">):</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"proxies"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+
+        <span class="n">method_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">method</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">attempt</span><span class="p">(</span><span class="n">proxies</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="o">**</span><span class="n">options</span><span class="p">,</span> <span class="s2">"proxies"</span><span class="p">:</span> <span class="n">proxies</span><span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotate</span><span class="p">(</span><span class="n">method_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replayable</span><span class="p">(</span><span class="n">options</span><span class="p">),</span> <span class="n">attempt</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RotatingSession.send">
+<a class="viewcode-back" href="../../session.html#proxyproviders.session.RotatingSession.send">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">send</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">PreparedRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Send a prepared request. Rotates like :meth:`request` unless ``proxies`` is given."""</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_local</span><span class="p">,</span> <span class="s2">"rotating"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"proxies"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">attempt</span><span class="p">(</span><span class="n">proxies</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="s2">"proxies"</span><span class="p">:</span> <span class="n">proxies</span><span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="n">replayable</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">body</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotate</span><span class="p">((</span><span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="ow">or</span> <span class="s2">"GET"</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">replayable</span><span class="p">,</span> <span class="n">attempt</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_rotate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">method_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">replayable</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">attempt</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+        <span class="n">attempts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">replayable</span> <span class="k">else</span> <span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">attempts</span><span class="p">):</span>
+            <span class="n">is_last</span> <span class="o">=</span> <span class="n">number</span> <span class="o">==</span> <span class="n">attempts</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">proxy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_proxy</span> <span class="o">=</span> <span class="n">proxy</span>
+
+            <span class="c1"># Marks the nested send() calls that requests makes as already handled here</span>
+            <span class="n">was_rotating</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_local</span><span class="p">,</span> <span class="s2">"rotating"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_local</span><span class="o">.</span><span class="n">rotating</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">attempt</span><span class="p">(</span><span class="n">proxy</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ProxyFormat</span><span class="o">.</span><span class="n">REQUESTS</span><span class="p">))</span>
+            <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">SSLError</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">except</span> <span class="p">(</span>
+                <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">,</span>
+                <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">Timeout</span><span class="p">,</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">report_failure</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span>
+                <span class="n">safe_to_resend</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">_never_sent</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="ow">or</span> <span class="n">method_name</span> <span class="ow">in</span> <span class="n">_IDEMPOTENT_METHODS</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">is_last</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">safe_to_resend</span><span class="p">:</span>
+                    <span class="k">raise</span>
+                <span class="k">continue</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_local</span><span class="o">.</span><span class="n">rotating</span> <span class="o">=</span> <span class="n">was_rotating</span>
+
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_statuses</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">report_failure</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">is_last</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">response</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">continue</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">report_success</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span>
+
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="s2">"unreachable: the loop returns or raises"</span>
+        <span class="p">)</span>  <span class="c1"># pragma: no cover</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_replayable</span><span class="p">(</span><span class="n">options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Whether the request body can be sent a second time."""</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"files"</span><span class="p">):</span>
+            <span class="c1"># File objects are read to the end on the first attempt</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">body</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, David Teather.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>proxyproviders.providers.brightdata &mdash; ProxyProviders 0.2.3 documentation</title>
+  <title>proxyproviders.providers.brightdata &mdash; ProxyProviders 0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
@@ -13,7 +13,7 @@
     <link rel="canonical" href="https://davidteather.github.io/proxyproviders/_modules/proxyproviders/providers/brightdata.html" />
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=a47416a6"></script>
+      <script src="../../../_static/documentation_options.js?v=e259d695"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -67,7 +67,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for proxyproviders.providers.brightdata</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 
@@ -174,7 +174,7 @@
 
 <div class="viewcode-block" id="BrightData.get_active_zones">
 <a class="viewcode-back" href="../../../proxyproviders.html#proxyproviders.providers.brightdata.BrightData.get_active_zones">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_active_zones</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_active_zones</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Fetches active zones from BrightData API.</span>
 
 <span class="sd">        Response:</span>
@@ -202,7 +202,7 @@
 <span class="sd">        :param zone: The zone ID to fetch username for</span>
 <span class="sd">        """</span>
 
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/status"</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"zone"</span><span class="p">:</span> <span class="n">zone</span><span class="p">})</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">"/status"</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"zone"</span><span class="p">:</span> <span class="n">zone</span><span class="p">})</span>
 
         <span class="n">customer</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"customer"</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">customer</span><span class="p">:</span>
@@ -213,7 +213,7 @@
 
 <div class="viewcode-block" id="BrightData.get_zone_passwords">
 <a class="viewcode-back" href="../../../proxyproviders.html#proxyproviders.providers.brightdata.BrightData.get_zone_passwords">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_zone_passwords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zone</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_zone_passwords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zone</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Fetches zone passwords from BrightData API.</span>
 
 <span class="sd">        :param zone: The zone ID to fetch passwords for</span>
@@ -231,12 +231,12 @@
 <span class="sd">            }</span>
 
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/zone/passwords"</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"zone"</span><span class="p">:</span> <span class="n">zone</span><span class="p">})</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">"/zone/passwords"</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"zone"</span><span class="p">:</span> <span class="n">zone</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="BrightData.list_all_ips_in_zone">
 <a class="viewcode-back" href="../../../proxyproviders.html#proxyproviders.providers.brightdata.BrightData.list_all_ips_in_zone">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">list_all_ips_in_zone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zone</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">country</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list_all_ips_in_zone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zone</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">country</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Fetches all IPs in a zone from BrightData API.</span>
 
 <span class="sd">        :param zone: The zone ID to fetch IPs for</span>
@@ -256,7 +256,7 @@
 
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"/zone/route_ips"</span><span class="p">,</span>
+            <span class="s2">"/zone/route_ips"</span><span class="p">,</span>
             <span class="s2">"GET"</span><span class="p">,</span>
             <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"zone"</span><span class="p">:</span> <span class="n">zone</span><span class="p">,</span> <span class="s2">"list_countries"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"country"</span><span class="p">:</span> <span class="n">country</span><span class="p">},</span>
         <span class="p">)</span></div>
@@ -266,9 +266,9 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">json</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">json</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Makes a request to the BrightData API.</span>
 
 <span class="sd">        :param path: The path to the endpoint</span>
@@ -282,9 +282,19 @@
         <span class="p">}</span>
 
         <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_BASE_URL</span><span class="si">}{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
-            <span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">json</span>
-        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
+                <span class="n">method</span><span class="p">,</span>
+                <span class="n">url</span><span class="p">,</span>
+                <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+                <span class="n">json</span><span class="o">=</span><span class="n">json</span><span class="p">,</span>
+                <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ProxyFetchException</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Failed to fetch from BrightData: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ProxyFetchException</span><span class="p">(</span>
@@ -292,13 +302,11 @@
             <span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ProxyInvalidResponseException</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"Failed to parse response: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
-
-        <span class="k">return</span> <span class="n">data</span></div>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
 
 </pre></div>
 

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ProxyProvider Shared Interface &mdash; ProxyProviders 0.2.3 documentation</title>
+  <title>ProxyProvider Shared Interface &mdash; ProxyProviders 0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
@@ -14,7 +14,7 @@
     <link rel="canonical" href="https://davidteather.github.io/proxyproviders/proxyprovider.html" />
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=a47416a6"></script>
+      <script src="_static/documentation_options.js?v=e259d695"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -46,12 +46,18 @@
 <li><a class="reference internal" href="#">ProxyProvider Shared Interface</a><ul>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyConfig"><code class="docutils literal notranslate"><span class="pre">ProxyConfig</span></code></a><ul>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyConfig.refresh_interval"><code class="docutils literal notranslate"><span class="pre">ProxyConfig.refresh_interval</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyConfig.timeout"><code class="docutils literal notranslate"><span class="pre">ProxyConfig.timeout</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyConfig.refresh_retry_delay"><code class="docutils literal notranslate"><span class="pre">ProxyConfig.refresh_retry_delay</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyConfig.failure_cooldown"><code class="docutils literal notranslate"><span class="pre">ProxyConfig.failure_cooldown</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider"><code class="docutils literal notranslate"><span class="pre">ProxyProvider</span></code></a><ul>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.config"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.config</span></code></a></li>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.list_proxies"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.list_proxies()</span></code></a></li>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.get_proxy"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.get_proxy()</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.report_failure"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.report_failure()</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.report_success"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.report_success()</span></code></a></li>
+<li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.available_proxies"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.available_proxies()</span></code></a></li>
 <li><a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.should_refresh"><code class="docutils literal notranslate"><span class="pre">ProxyProvider.should_refresh()</span></code></a></li>
 </ul>
 </li>
@@ -87,7 +93,7 @@
 <span id="proxyprovider-shared-interface"></span><h1>ProxyProvider Shared Interface<a class="headerlink" href="#module-proxyproviders.proxy_provider" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyConfig">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">proxyproviders.proxy_provider.</span></span><span class="sig-name descname"><span class="pre">ProxyConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">refresh_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">600</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyConfig" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">proxyproviders.proxy_provider.</span></span><span class="sig-name descname"><span class="pre">ProxyConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">refresh_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh_retry_delay</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failure_cooldown</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyConfig" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Provides standard shared configuration options for all proxy providers.</p>
 <p>Example:</p>
@@ -102,6 +108,27 @@
 <span class="sig-name descname"><span class="pre">refresh_interval</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">600</span></span><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyConfig.refresh_interval" title="Link to this definition"></a></dt>
 <dd><p>Duration in seconds after which the proxy list is refreshed to fetch new proxies.
 Set to 0 to disable automatic refreshing after the initial fetch.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyConfig.timeout">
+<span class="sig-name descname"><span class="pre">timeout</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">30</span></span><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyConfig.timeout" title="Link to this definition"></a></dt>
+<dd><p>Timeout in seconds for each request to the provider’s API, so a stalled connection
+raises instead of hanging forever.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyConfig.refresh_retry_delay">
+<span class="sig-name descname"><span class="pre">refresh_retry_delay</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">30</span></span><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyConfig.refresh_retry_delay" title="Link to this definition"></a></dt>
+<dd><p>After an automatic refresh fails and the previous proxy list is served instead, wait
+this many seconds before trying the provider’s API again.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyConfig.failure_cooldown">
+<span class="sig-name descname"><span class="pre">failure_cooldown</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60</span></span><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyConfig.failure_cooldown" title="Link to this definition"></a></dt>
+<dd><p>How long, in seconds, <a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.get_proxy" title="proxyproviders.proxy_provider.ProxyProvider.get_proxy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ProxyProvider.get_proxy()</span></code></a> avoids a proxy after it was
+passed to <a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.report_failure" title="proxyproviders.proxy_provider.ProxyProvider.report_failure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ProxyProvider.report_failure()</span></code></a>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -126,8 +153,14 @@ type hinting and for creating custom providers that are not included in the libr
 <dl class="py method">
 <dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyProvider.list_proxies">
 <span class="sig-name descname"><span class="pre">list_proxies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_refresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="models.html#proxyproviders.models.proxy.Proxy" title="proxyproviders.models.proxy.Proxy"><span class="pre">Proxy</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyProvider.list_proxies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyProvider.list_proxies" title="Link to this definition"></a></dt>
-<dd><p>Returns the stored proxies.
-If a format function is provided, it applies that function to each proxy.</p>
+<dd><p>Returns the stored proxies, fetching them from the provider first when they are
+missing or older than <code class="docutils literal notranslate"><span class="pre">refresh_interval</span></code>.</p>
+<p>Safe to call from several threads: when the list is stale only one thread fetches
+and the others wait for its result.</p>
+<p>If an automatic refresh fails and an earlier list is available, that list is
+returned and a warning is logged, so one failed call to the provider’s API does not
+take your proxies away. The error is raised when there is nothing to fall back on,
+or when <code class="docutils literal notranslate"><span class="pre">force_refresh</span></code> is True.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>force_refresh</strong> – If True, fetches new proxies even if the list is not considered stale.</p>
@@ -168,6 +201,46 @@ If a format function is provided, it applies that function to each proxy.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"https://httpbin.org/ip"</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">()</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ProxyFormat</span><span class="o">.</span><span class="n">REQUESTS</span><span class="p">))</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyProvider.report_failure">
+<span class="sig-name descname"><span class="pre">report_failure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="models.html#proxyproviders.models.proxy.Proxy" title="proxyproviders.models.proxy.Proxy"><span class="pre">Proxy</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cooldown</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyProvider.report_failure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyProvider.report_failure" title="Link to this definition"></a></dt>
+<dd><p>Tell the provider a proxy just failed, so <a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.get_proxy" title="proxyproviders.proxy_provider.ProxyProvider.get_proxy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_proxy()</span></code></a> avoids it for a while.</p>
+<p>Nothing calls this for you unless you use
+<a class="reference internal" href="session.html#proxyproviders.session.RotatingSession" title="proxyproviders.session.RotatingSession"><code class="xref py py-class docutils literal notranslate"><span class="pre">RotatingSession</span></code></a>; it is how your own code feeds
+back a connection error, a ban or a bad response. The proxy stays in
+<a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.list_proxies" title="proxyproviders.proxy_provider.ProxyProvider.list_proxies"><code class="xref py py-meth docutils literal notranslate"><span class="pre">list_proxies()</span></code></a> and comes back into rotation once the cooldown has passed. If
+every proxy is cooling down, <a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.get_proxy" title="proxyproviders.proxy_provider.ProxyProvider.get_proxy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_proxy()</span></code></a> still returns one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>proxy</strong> – The proxy that failed</p></li>
+<li><p><strong>cooldown</strong> – Seconds to avoid it for. Defaults to <code class="docutils literal notranslate"><span class="pre">ProxyConfig.failure_cooldown</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_proxy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="n">proxy</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ProxyFormat</span><span class="o">.</span><span class="n">REQUESTS</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ProxyError</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">provider</span><span class="o">.</span><span class="n">report_failure</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyProvider.report_success">
+<span class="sig-name descname"><span class="pre">report_success</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="models.html#proxyproviders.models.proxy.Proxy" title="proxyproviders.models.proxy.Proxy"><span class="pre">Proxy</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyProvider.report_success"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyProvider.report_success" title="Link to this definition"></a></dt>
+<dd><p>Clear a failure reported for a proxy, putting it back into rotation right away.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="proxyproviders.proxy_provider.ProxyProvider.available_proxies">
+<span class="sig-name descname"><span class="pre">available_proxies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="models.html#proxyproviders.models.proxy.Proxy" title="proxyproviders.models.proxy.Proxy"><span class="pre">Proxy</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/proxyproviders/proxy_provider.html#ProxyProvider.available_proxies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#proxyproviders.proxy_provider.ProxyProvider.available_proxies" title="Link to this definition"></a></dt>
+<dd><p>Like <a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.list_proxies" title="proxyproviders.proxy_provider.ProxyProvider.list_proxies"><code class="xref py py-meth docutils literal notranslate"><span class="pre">list_proxies()</span></code></a>, without the proxies currently cooling down after
+<a class="reference internal" href="#proxyproviders.proxy_provider.ProxyProvider.report_failure" title="proxyproviders.proxy_provider.ProxyProvider.report_failure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">report_failure()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py method">

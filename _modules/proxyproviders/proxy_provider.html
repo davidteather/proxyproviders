@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>proxyproviders.proxy_provider &mdash; ProxyProviders 0.2.3 documentation</title>
+  <title>proxyproviders.proxy_provider &mdash; ProxyProviders 0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
@@ -13,7 +13,7 @@
     <link rel="canonical" href="https://davidteather.github.io/proxyproviders/_modules/proxyproviders/proxy_provider.html" />
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=a47416a6"></script>
+      <script src="../../_static/documentation_options.js?v=e259d695"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -67,16 +67,19 @@
            <div itemprop="articleBody">
              
   <h1>Source code for proxyproviders.proxy_provider</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.models.proxy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Proxy</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Algorithm</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="ProxyConfig">
@@ -97,7 +100,19 @@
 
     <span class="n">refresh_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">600</span>
 <span class="w">    </span><span class="sd">"""Duration in seconds after which the proxy list is refreshed to fetch new proxies.</span>
-<span class="sd">    Set to 0 to disable automatic refreshing after the initial fetch."""</span></div>
+<span class="sd">    Set to 0 to disable automatic refreshing after the initial fetch."""</span>
+
+    <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="w">    </span><span class="sd">"""Timeout in seconds for each request to the provider's API, so a stalled connection</span>
+<span class="sd">    raises instead of hanging forever."""</span>
+
+    <span class="n">refresh_retry_delay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="w">    </span><span class="sd">"""After an automatic refresh fails and the previous proxy list is served instead, wait</span>
+<span class="sd">    this many seconds before trying the provider's API again."""</span>
+
+    <span class="n">failure_cooldown</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">60</span>
+<span class="w">    </span><span class="sd">"""How long, in seconds, :meth:`ProxyProvider.get_proxy` avoids a proxy after it was</span>
+<span class="sd">    passed to :meth:`ProxyProvider.report_failure`."""</span></div>
 
 
 
@@ -120,7 +135,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span> <span class="n">ProxyConfig</span> <span class="o">=</span> <span class="n">config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_proxies</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Proxy</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_refresh</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_retry_refresh_after</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Proxies reported as failing, and when each may be handed out again</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cooldowns</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Guards the cached proxies and timestamps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+        <span class="c1"># Held while fetching, so concurrent callers trigger one fetch instead of one each</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
 
         <span class="c1"># Initialize default algorithm (RoundRobin for state persistence)</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">RoundRobin</span>
@@ -131,14 +152,24 @@
 <a class="viewcode-back" href="../../proxyprovider.html#proxyproviders.proxy_provider.ProxyProvider.list_proxies">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">list_proxies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force_refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Proxy</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Returns the stored proxies.</span>
-<span class="sd">        If a format function is provided, it applies that function to each proxy.</span>
+<span class="sd">        Returns the stored proxies, fetching them from the provider first when they are</span>
+<span class="sd">        missing or older than ``refresh_interval``.</span>
+
+<span class="sd">        Safe to call from several threads: when the list is stale only one thread fetches</span>
+<span class="sd">        and the others wait for its result.</span>
+
+<span class="sd">        If an automatic refresh fails and an earlier list is available, that list is</span>
+<span class="sd">        returned and a warning is logged, so one failed call to the provider's API does not</span>
+<span class="sd">        take your proxies away. The error is raised when there is nothing to fall back on,</span>
+<span class="sd">        or when ``force_refresh`` is True.</span>
 
 <span class="sd">        :param force_refresh: If True, fetches new proxies even if the list is not considered stale.</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="n">force_refresh</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">should_refresh</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxies</span><span class="p">:</span>
-            <span class="n">proxies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_proxies</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_set_proxies</span><span class="p">(</span><span class="n">proxies</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">force_refresh</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_due</span><span class="p">():</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_lock</span><span class="p">:</span>
+                <span class="c1"># Another thread may have refreshed while this one waited for the lock</span>
+                <span class="k">if</span> <span class="n">force_refresh</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_due</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_refresh</span><span class="p">(</span><span class="n">force_refresh</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proxies</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxies</span> <span class="k">else</span> <span class="p">[]</span></div>
@@ -174,10 +205,58 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">proxies</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"No proxies available from provider"</span><span class="p">)</span>
 
+        <span class="c1"># If every proxy is cooling down, handing one out beats failing outright</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_without_cooling_down</span><span class="p">(</span><span class="n">proxies</span><span class="p">)</span> <span class="ow">or</span> <span class="n">proxies</span>
+
         <span class="k">if</span> <span class="n">algorithm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">algorithm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_algorithm</span>
 
-        <span class="k">return</span> <span class="n">algorithm</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">proxies</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">algorithm</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ProxyProvider.report_failure">
+<a class="viewcode-back" href="../../proxyprovider.html#proxyproviders.proxy_provider.ProxyProvider.report_failure">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">report_failure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proxy</span><span class="p">:</span> <span class="n">Proxy</span><span class="p">,</span> <span class="n">cooldown</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Tell the provider a proxy just failed, so :meth:`get_proxy` avoids it for a while.</span>
+
+<span class="sd">        Nothing calls this for you unless you use</span>
+<span class="sd">        :class:`~proxyproviders.session.RotatingSession`; it is how your own code feeds</span>
+<span class="sd">        back a connection error, a ban or a bad response. The proxy stays in</span>
+<span class="sd">        :meth:`list_proxies` and comes back into rotation once the cooldown has passed. If</span>
+<span class="sd">        every proxy is cooling down, :meth:`get_proxy` still returns one.</span>
+
+<span class="sd">        :param proxy: The proxy that failed</span>
+<span class="sd">        :param cooldown: Seconds to avoid it for. Defaults to ``ProxyConfig.failure_cooldown``.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; proxy = provider.get_proxy()</span>
+<span class="sd">            &gt;&gt;&gt; try:</span>
+<span class="sd">            ...     requests.get(url, proxies=proxy.format(ProxyFormat.REQUESTS), timeout=10)</span>
+<span class="sd">            ... except requests.exceptions.ProxyError:</span>
+<span class="sd">            ...     provider.report_failure(proxy)</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">cooldown</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cooldown</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">failure_cooldown</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cooldowns</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_health_key</span><span class="p">(</span><span class="n">proxy</span><span class="p">)]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span>
+                <span class="n">seconds</span><span class="o">=</span><span class="n">cooldown</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ProxyProvider.report_success">
+<a class="viewcode-back" href="../../proxyprovider.html#proxyproviders.proxy_provider.ProxyProvider.report_success">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">report_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proxy</span><span class="p">:</span> <span class="n">Proxy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Clear a failure reported for a proxy, putting it back into rotation right away."""</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cooldowns</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_health_key</span><span class="p">(</span><span class="n">proxy</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ProxyProvider.available_proxies">
+<a class="viewcode-back" href="../../proxyprovider.html#proxyproviders.proxy_provider.ProxyProvider.available_proxies">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">available_proxies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Proxy</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Like :meth:`list_proxies`, without the proxies currently cooling down after</span>
+<span class="sd">        :meth:`report_failure`."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_without_cooling_down</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_proxies</span><span class="p">())</span></div>
 
 
     <span class="c1">#</span>
@@ -190,27 +269,79 @@
 <span class="sd">        """</span>
         <span class="k">pass</span>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_health_key</span><span class="p">(</span><span class="n">proxy</span><span class="p">:</span> <span class="n">Proxy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="c1"># Not Proxy.id: gateway providers reuse one address with a username per exit</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">proxy</span><span class="o">.</span><span class="n">proxy_address</span><span class="p">,</span> <span class="n">proxy</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">proxy</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_without_cooling_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proxies</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Proxy</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Proxy</span><span class="p">]:</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cooldowns</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">proxies</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cooldowns</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">key</span><span class="p">:</span> <span class="n">until</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">until</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cooldowns</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">until</span> <span class="o">&gt;</span> <span class="n">now</span>
+            <span class="p">}</span>
+            <span class="n">cooling</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cooldowns</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">proxies</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_health_key</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cooling</span><span class="p">]</span>
+
 <div class="viewcode-block" id="ProxyProvider.should_refresh">
 <a class="viewcode-back" href="../../proxyprovider.html#proxyproviders.proxy_provider.ProxyProvider.should_refresh">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">should_refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Returns True if the proxy list should be refreshed based on the refresh_interval."""</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxies</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_refresh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxies</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_refresh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">refresh_interval</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">refresh_interval</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">(</span>
                     <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_refresh</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">refresh_interval</span>
 
-        <span class="k">return</span> <span class="kc">False</span></div>
+            <span class="k">return</span> <span class="kc">False</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_set_proxies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proxies</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Proxy</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_refresh_due</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Whether list_proxies should call the provider now."""</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="n">has_proxies</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proxies</span><span class="p">)</span>
+            <span class="n">retry_after</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retry_refresh_after</span>
+
+        <span class="k">if</span> <span class="n">has_proxies</span> <span class="ow">and</span> <span class="n">retry_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">retry_after</span><span class="p">:</span>
+            <span class="c1"># A recent refresh failed and the previous list is being served</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">should_refresh</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">has_proxies</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force_refresh</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Fetches proxies and stores them. Must be called with _refresh_lock held."""</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">proxies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_proxies</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+                <span class="n">has_proxies</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proxies</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">has_proxies</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force_refresh</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_retry_refresh_after</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span>
+                        <span class="n">seconds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">refresh_retry_delay</span>
+                    <span class="p">)</span>
+            <span class="k">if</span> <span class="n">force_refresh</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">has_proxies</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">"Refreshing proxies failed, serving the previous list. "</span>
+                <span class="s2">"Retrying in </span><span class="si">%s</span><span class="s2"> seconds."</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">refresh_retry_delay</span><span class="p">,</span>
+                <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_proxies</span><span class="p">(</span><span class="n">proxies</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_proxies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proxies</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Proxy</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Sets the list of proxies and updates the last refresh time."""</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_proxies</span> <span class="o">=</span> <span class="n">proxies</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_last_refresh</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_refresh</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_retry_refresh_after</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 </pre></div>
 
