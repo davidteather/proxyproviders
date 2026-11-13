@@ -5,6 +5,7 @@ Current Providers Supported:
 
 * `Webshare.io <https://go.dteather.com/webshare?src=proxyproviders&placement=docs>`_ (referral link) - try out 10 free datacenter proxies
 * `BrightData <https://go.dteather.com/brightdata?src=proxyproviders&placement=docs>`_ (affiliate link)
+* `NodeMaven <https://nodemaven.com>`_ - residential and mobile proxies with sticky sessions
 
 Don't see a provider you need? Open an issue or submit a PR!
 
@@ -13,3 +14,6 @@ Don't see a provider you need? Open an issue or submit a PR!
 
 .. _brightdata:
 .. include:: providers/brightdata.rst
+
+.. _nodemaven:
+.. include:: providers/nodemaven.rst
