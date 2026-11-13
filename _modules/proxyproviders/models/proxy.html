@@ -71,6 +71,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">quote</span>
 
 
 <div class="viewcode-block" id="ProxyFormat">
@@ -137,7 +138,10 @@
 <span class="w">        </span><span class="sd">"""Convert proxy to URL format for use with HTTP clients.</span>
 
 <span class="sd">        :param protocol: The protocol to use in the URL (default: 'http')</span>
-<span class="sd">        :return: Proxy URL in format 'protocol://username:password@host:port'</span>
+<span class="sd">        :return: Proxy URL in format 'protocol://username:password@host:port'.</span>
+<span class="sd">            The username and password are percent-encoded, so characters such</span>
+<span class="sd">            as ``@``, ``:``, ``#`` or ``/`` in them do not change where the URL</span>
+<span class="sd">            points.</span>
 
 <span class="sd">        Example:</span>
 <span class="sd">            &gt;&gt;&gt; proxy.to_url()</span>
@@ -145,7 +149,9 @@
 <span class="sd">            &gt;&gt;&gt; proxy.to_url('https')</span>
 <span class="sd">            'https://user:pass@192.168.1.1:8080'</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">protocol</span><span class="si">}</span><span class="s2">://</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">proxy_address</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">"</span></div>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">quote</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="n">safe</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="n">quote</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">,</span> <span class="n">safe</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">protocol</span><span class="si">}</span><span class="s2">://</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">password</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">proxy_address</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">"</span></div>
 
 
 <div class="viewcode-block" id="Proxy.format">

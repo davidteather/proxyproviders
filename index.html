@@ -778,7 +778,10 @@ If a format function is provided, it applies that function to each proxy.</p>
 <dd class="field-odd"><p><strong>protocol</strong> – The protocol to use in the URL (default: ‘http’)</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Proxy URL in format ‘protocol://username:password&#64;host:port’</p>
+<dd class="field-even"><p>Proxy URL in format ‘protocol://username:password&#64;host:port’.
+The username and password are percent-encoded, so characters such
+as <code class="docutils literal notranslate"><span class="pre">&#64;</span></code>, <code class="docutils literal notranslate"><span class="pre">:</span></code>, <code class="docutils literal notranslate"><span class="pre">#</span></code> or <code class="docutils literal notranslate"><span class="pre">/</span></code> in them do not change where the URL
+points.</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
