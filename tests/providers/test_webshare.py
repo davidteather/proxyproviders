@@ -296,3 +296,27 @@ def test_invalid_proxy_timestamp(mock_webshare):
     proxy_absent_created_at = proxies[1]
     assert isinstance(proxy_absent_created_at, Proxy)
     assert proxy_absent_created_at.created_at is None
+
+
+def test_requests_are_sent_with_the_configured_timeout():
+    from unittest.mock import MagicMock, patch
+
+    from proxyproviders import ProxyConfig, Webshare
+
+    response = MagicMock()
+    response.json.return_value = {"results": [], "next": None}
+
+    with patch(
+        "proxyproviders.providers.webshare.requests.get", return_value=response
+    ) as get:
+        Webshare(api_key="key", config=ProxyConfig(timeout=7)).list_proxies()
+
+    assert get.call_args.kwargs["timeout"] == 7
+
+
+def test_documented_search_params_example_works():
+    """The README and docstring example: the keyword is search_params, not params."""
+    from proxyproviders import Webshare
+
+    provider = Webshare(api_key="key", search_params={"country_code_in": "US"})
+    assert provider.search_params == {"country_code_in": "US"}

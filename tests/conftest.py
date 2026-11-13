@@ -26,3 +26,40 @@ def brightdata_provider():
     api_key = os.getenv("BRIGHTDATA_API_KEY", "test-brightdata-api-key")
     zone = "test-zone"
     return BrightData(api_key=api_key, zone=zone)
+
+
+@pytest.fixture
+def target():
+    """A local HTTP server standing in for the site being requested."""
+    from tests.local_servers import TargetServer
+
+    server = TargetServer()
+    yield server
+    server.close()
+
+
+@pytest.fixture
+def http_proxy():
+    """A local authenticated HTTP forward proxy."""
+    from tests.local_servers import HttpProxyServer
+
+    server = HttpProxyServer()
+    yield server
+    server.close()
+
+
+@pytest.fixture
+def make_http_proxy():
+    """Factory for extra local proxies, all closed at the end of the test."""
+    from tests.local_servers import HttpProxyServer
+
+    servers = []
+
+    def make(**kwargs):
+        server = HttpProxyServer(**kwargs)
+        servers.append(server)
+        return server
+
+    yield make
+    for server in servers:
+        server.close()

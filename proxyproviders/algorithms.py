@@ -3,7 +3,7 @@
 import random
 import threading
 from abc import ABC, abstractmethod
-from typing import Dict, List
+from typing import List
 
 from .models.proxy import Proxy
 
@@ -67,7 +67,7 @@ class RoundRobin(Algorithm):
         >>> proxy2 = provider.get_proxy(algorithm)  # Next proxy in sequence
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize round-robin algorithm with state tracking."""
         self._current_index = 0
         self._lock = threading.Lock()

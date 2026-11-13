@@ -1,8 +1,6 @@
-from typing import Optional
+"""All custom exceptions for the ProxyProvider classes are defined here."""
 
-"""
-All custom exceptions for the ProxyProvider classes are defined here.
-"""
+from typing import Optional
 
 
 class ProxyProviderException(Exception):

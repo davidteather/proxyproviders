@@ -178,3 +178,38 @@ def test_make_request_invalid_json(brightdata_provider):
 
     with pytest.raises(ProxyInvalidResponseException):
         brightdata_provider.get_zone_username("test-zone")
+
+
+def test_requests_are_sent_with_the_configured_timeout():
+    from unittest.mock import MagicMock, patch
+
+    from proxyproviders import BrightData, ProxyConfig
+
+    response = MagicMock(status_code=200)
+    response.json.return_value = []
+
+    with patch(
+        "proxyproviders.providers.brightdata.requests.request", return_value=response
+    ) as request:
+        BrightData(
+            api_key="key", zone="zone", config=ProxyConfig(timeout=7)
+        ).get_active_zones()
+
+    assert request.call_args.kwargs["timeout"] == 7
+
+
+def test_connection_errors_are_wrapped():
+    """A timeout or connection error surfaces as ProxyFetchException, like Webshare."""
+    from unittest.mock import patch
+
+    import pytest
+    import requests
+
+    from proxyproviders import BrightData, ProxyFetchException
+
+    with patch(
+        "proxyproviders.providers.brightdata.requests.request",
+        side_effect=requests.exceptions.Timeout("timed out"),
+    ):
+        with pytest.raises(ProxyFetchException, match="timed out"):
+            BrightData(api_key="key", zone="zone").get_active_zones()

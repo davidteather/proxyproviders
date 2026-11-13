@@ -5,7 +5,7 @@ import os
 import pytest
 import requests
 
-from proxyproviders.algorithms import First, Random, RoundRobin
+from proxyproviders.algorithms import First, Random
 from proxyproviders.models.proxy import ProxyFormat
 from proxyproviders.providers.brightdata import BrightData
 
@@ -156,17 +156,14 @@ def test_brightdata_playwright_format_comprehensive():
         assert field in playwright_config, f"Missing required field: {field}"
 
     for field in optional_fields:
-        if field in playwright_config:
-            assert True  # Field is present
-        else:
-            assert False, f"Missing optional field: {field}"
+        assert field in playwright_config, f"Missing optional field: {field}"
 
     # Verify server format
     server = playwright_config["server"]
     assert "://" in server, "Server should include protocol"
-    assert (
-        f"{proxy.proxy_address}:{proxy.port}" in server
-    ), "Server should include address and port"
+    assert f"{proxy.proxy_address}:{proxy.port}" in server, (
+        "Server should include address and port"
+    )
 
     # Test 6: Protocol fallback behavior
     # Try to use an unsupported protocol - should fallback gracefully
