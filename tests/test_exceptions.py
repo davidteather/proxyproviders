@@ -1,5 +1,3 @@
-import pytest
-
 from proxyproviders.exceptions import ProxyFetchException, ProxyInvalidResponseException
 
 
@@ -19,3 +17,18 @@ def test_proxy_invalid_response_exception():
     response = '{"error": "Invalid API Key"}'
     ex = ProxyInvalidResponseException(response)
     assert "Invalid response received" in str(ex)
+
+
+def test_exceptions_are_exported_from_the_package():
+    import proxyproviders
+
+    for name in (
+        "ProxyProviderException",
+        "ProxyFetchException",
+        "ProxyConversionException",
+        "ProxyInvalidResponseException",
+    ):
+        assert name in proxyproviders.__all__
+        assert issubclass(
+            getattr(proxyproviders, name), proxyproviders.ProxyProviderException
+        )

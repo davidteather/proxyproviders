@@ -16,6 +16,9 @@ ProxyProviders Quick Start Documentation
 .. _providers:
 .. include:: proxyproviders.rst
 
+.. _session:
+.. include:: session.rst
+
 .. _models:
 .. include:: models.rst
 

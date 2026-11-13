@@ -1,30 +1,19 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union, overload
 from urllib.parse import quote
 
+from .formats import (
+    SOCKS_SCHEMES,
+    TARGET_SCHEMES,
+    FormattedProxy,
+    ProxyFormat,
+    format_proxy,
+    host_for_url,
+    parse_proxy_string,
+)
 
-class ProxyFormat(Enum):
-    """Supported proxy output formats."""
-
-    REQUESTS = "requests"
-    """Requests format, for use in requests library HTTP calls"""
-
-    CURL = "curl"
-    """CURL format, for use in curl commands"""
-
-    HTTPX = "httpx"
-    """HTTPX format, for use in httpx library HTTP calls"""
-
-    AIOHTTP = "aiohttp"
-    """AIOHTTP format, for use in aiohttp library HTTP calls"""
-
-    PLAYWRIGHT = "playwright"
-    """Playwright format, for use in Playwright browser automation"""
-
-    URL = "url"
-    """URL format, for use in URL strings"""
+__all__ = ["FormattedProxy", "Proxy", "ProxyFormat"]
 
 
 @dataclass
@@ -37,8 +26,9 @@ class Proxy:
     username: str
     """The username required for authenticating with the proxy"""
 
-    password: str
-    """The password required for authenticating with the proxy"""
+    password: str = field(repr=False)
+    """The password required for authenticating with the proxy. Left out of ``repr()`` so
+    printing or logging a proxy does not expose it."""
 
     proxy_address: str
     """The IP address or domain name of the proxy"""
@@ -58,14 +48,66 @@ class Proxy:
     protocols: Optional[List[str]] = None
     """A list of connection protocols supported by the proxy, e.g., ['http', 'https']"""
 
-    def to_url(self, protocol: str = "http") -> str:
+    @classmethod
+    def from_string(cls, text: str, id: Optional[str] = None, **fields: Any) -> "Proxy":
+        """Build a proxy from text, for proxies you already have as a list or a file.
+
+        Accepted forms:
+
+        * a URL: ``http://user:pass@host:port``, ``socks5://host:port``
+        * ``user:pass@host:port`` and ``host:port`` (treated as http)
+        * ``host:port:user:pass``, the line format many providers export
+
+        :param text: The proxy to parse
+        :param id: Identifier for the proxy. Defaults to ``host:port``.
+        :param fields: Any other :class:`Proxy` fields to set, e.g. ``country_code="US"``
+        :raises ValueError: If the text is not one of the accepted forms
+
+        Example:
+            >>> Proxy.from_string("203.0.113.7:8080:user:pass").to_url()
+            'http://user:pass@203.0.113.7:8080'
+        """
+        parsed = parse_proxy_string(text)
+        if id is None:
+            id = f"{parsed['proxy_address']}:{parsed['port']}"
+        return cls(id=id, **{**parsed, **fields})
+
+    @classmethod
+    def from_url(cls, url: str, id: Optional[str] = None, **fields: Any) -> "Proxy":
+        """Build a proxy from a URL such as ``http://user:pass@host:port``.
+
+        The reverse of :meth:`to_url`: percent-encoded credentials are decoded. See
+        :meth:`from_string`, which this is an alias of, for every accepted form.
+        """
+        return cls.from_string(url, id=id, **fields)
+
+    @property
+    def scheme(self) -> str:
+        """The URL scheme used to connect to this proxy.
+
+        ``protocols`` lists what the proxy supports. A proxy that supports ``http`` or
+        ``https`` (or does not say) is reached over ``http``. A SOCKS-only proxy, e.g.
+        ``protocols=["socks5"]``, is reached over that SOCKS scheme.
+        """
+        if not self.protocols:
+            return "http"
+        if any(protocol in TARGET_SCHEMES for protocol in self.protocols):
+            return "http"
+        for protocol in self.protocols:
+            if protocol in SOCKS_SCHEMES:
+                return protocol
+        return "http"
+
+    def to_url(self, protocol: Optional[str] = None) -> str:
         """Convert proxy to URL format for use with HTTP clients.
 
-        :param protocol: The protocol to use in the URL (default: 'http')
+        :param protocol: The protocol to use in the URL. Defaults to :attr:`scheme`, which is
+            ``http`` unless the proxy only supports SOCKS.
         :return: Proxy URL in format 'protocol://username:password@host:port'.
             The username and password are percent-encoded, so characters such
             as ``@``, ``:``, ``#`` or ``/`` in them do not change where the URL
-            points.
+            points. A proxy with no username and no password gives
+            'protocol://host:port'.
 
         Example:
             >>> proxy.to_url()
@@ -73,83 +115,91 @@ class Proxy:
             >>> proxy.to_url('https')
             'https://user:pass@192.168.1.1:8080'
         """
+        if protocol is None:
+            protocol = self.scheme
+        host = host_for_url(self.proxy_address)
+        if not self.username and not self.password:
+            return f"{protocol}://{host}:{self.port}"
         username = quote(self.username, safe="")
         password = quote(self.password, safe="")
-        return f"{protocol}://{username}:{password}@{self.proxy_address}:{self.port}"
+        return f"{protocol}://{username}:{password}@{host}:{self.port}"
+
+    @overload
+    def format(
+        self,
+        format_type: Literal[
+            ProxyFormat.URL,
+            ProxyFormat.HTTPX,
+            ProxyFormat.AIOHTTP,
+            ProxyFormat.SCRAPY,
+            ProxyFormat.HOST_PORT_USER_PASS,
+            "url",
+            "httpx",
+            "aiohttp",
+            "scrapy",
+            "host_port_user_pass",
+        ] = ...,
+        **kwargs: Any,
+    ) -> str: ...
+
+    @overload
+    def format(
+        self,
+        format_type: Literal[
+            ProxyFormat.REQUESTS,
+            ProxyFormat.URLLIB,
+            ProxyFormat.PLAYWRIGHT,
+            ProxyFormat.ENV,
+            "requests",
+            "urllib",
+            "playwright",
+            "env",
+        ],
+        **kwargs: Any,
+    ) -> Dict[str, str]: ...
+
+    @overload
+    def format(
+        self, format_type: Literal[ProxyFormat.CURL, "curl"], **kwargs: Any
+    ) -> List[str]: ...
+
+    @overload
+    def format(
+        self, format_type: Union[ProxyFormat, str], **kwargs: Any
+    ) -> FormattedProxy: ...
 
     def format(
-        self, format_type: Union[ProxyFormat, str] = ProxyFormat.URL, **kwargs
-    ) -> Union[str, Dict[str, str], List[str]]:
+        self, format_type: Union[ProxyFormat, str] = ProxyFormat.URL, **kwargs: Any
+    ) -> FormattedProxy:
         """Format proxy for different HTTP clients and tools.
 
-        :param format_type: Output format (default: URL string)
-        :param kwargs: Format-specific options
+        A SOCKS-only proxy (``protocols=["socks5"]``) is formatted with its SOCKS scheme.
+        Your HTTP client needs SOCKS support for that: ``requests[socks]`` or
+        ``httpx[socks]``. aiohttp and Scrapy have no built-in SOCKS support.
+
+        :param format_type: Output format (default: URL string). See :class:`ProxyFormat`
+            for every format and what it is passed to.
+        :param kwargs: Format-specific options: ``protocol`` for ``URL`` and
+            ``PLAYWRIGHT``, ``protocols`` for ``REQUESTS`` and ``URLLIB``
         :return: Formatted proxy data
 
         Examples:
             >>> proxy.format()  # Default URL string
             'http://user:pass@192.168.1.1:8080'
 
-            >>> proxy.format(ProxyFormat.REQUESTS)
+            >>> proxy.format(ProxyFormat.REQUESTS)  # requests.get(url, proxies=...)
             {'http': 'http://user:pass@192.168.1.1:8080', 'https': 'http://user:pass@192.168.1.1:8080'}
 
             >>> proxy.format('curl')  # String also works
             ['-x', 'http://user:pass@192.168.1.1:8080']
 
-            >>> proxy.format(ProxyFormat.HTTPX)
-            {'http://': 'http://user:pass@192.168.1.1:8080', 'https://': 'http://user:pass@192.168.1.1:8080'}
+            >>> proxy.format(ProxyFormat.HTTPX)  # httpx.Client(proxy=...)
+            'http://user:pass@192.168.1.1:8080'
+
+            >>> proxy.format(ProxyFormat.PLAYWRIGHT)  # browser.new_context(proxy=...)
+            {'server': 'http://192.168.1.1:8080', 'username': 'user', 'password': 'pass'}
+
+            >>> proxy.format(ProxyFormat.HOST_PORT_USER_PASS)
+            '192.168.1.1:8080:user:pass'
         """
-        # Convert to ProxyFormat enum, handling both string and enum inputs
-        if isinstance(format_type, str):
-            try:
-                format_type = ProxyFormat(format_type)
-            except ValueError:
-                raise ValueError(
-                    f"Invalid format type: '{format_type}'. Valid options are: {[f.value for f in ProxyFormat]}"
-                )
-        elif not isinstance(format_type, ProxyFormat):
-            raise ValueError(  # pyright: ignore[reportUnreachable] this is actually reachable
-                f"Invalid format type: {type(format_type).__name__}. Expected ProxyFormat enum or string."
-            )
-
-        format_handlers = {
-            ProxyFormat.URL: lambda: self.to_url(kwargs.get("protocol", "http")),
-            ProxyFormat.REQUESTS: lambda: self._format_requests(kwargs),
-            ProxyFormat.CURL: lambda: ["-x", self.to_url("http")],
-            ProxyFormat.HTTPX: lambda: self._format_httpx(),
-            ProxyFormat.AIOHTTP: lambda: self.to_url("http"),
-            ProxyFormat.PLAYWRIGHT: lambda: self._format_playwright(**kwargs),
-        }
-
-        handler = format_handlers[format_type]
-        return handler()
-
-    def _format_requests(self, kwargs):
-        """Format proxy for requests library."""
-        protocols = kwargs.get("protocols", self.protocols or ["http", "https"])
-        proxy_url = self.to_url("http")
-        return {protocol: proxy_url for protocol in protocols}
-
-    def _format_httpx(self):
-        """Format proxy for httpx library."""
-        proxy_url = self.to_url("http")
-        return {"http://": proxy_url, "https://": proxy_url}
-
-    def _format_playwright(self, **kwargs):
-        """Format proxy for Playwright."""
-        # Playwright expects server with protocol (e.g., 'http://ip:port', 'socks5://ip:port')
-        # Allow protocol selection via kwargs, default to http
-        protocol = kwargs.get("protocol", "http")
-
-        # Validate protocol is supported by the proxy
-        if self.protocols and protocol not in self.protocols:
-            # If proxy has specific protocols, use the first available one
-            protocol = self.protocols[0]
-
-        playwright_proxy = {"server": f"{protocol}://{self.proxy_address}:{self.port}"}
-
-        if self.username and self.password:
-            playwright_proxy["username"] = self.username
-            playwright_proxy["password"] = self.password
-
-        return playwright_proxy
+        return format_proxy(self, format_type, **kwargs)

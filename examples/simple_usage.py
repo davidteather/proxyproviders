@@ -43,7 +43,7 @@ def main():
 
     # Other formats
     proxy.format(ProxyFormat.CURL)  # ["-x", "http://..."]
-    proxy.format(ProxyFormat.HTTPX)  # {"http://": "...", "https://": "..."}
+    proxy.format(ProxyFormat.HTTPX)  # "http://user:pass@host:port", for proxy=
 
 
 if __name__ == "__main__":

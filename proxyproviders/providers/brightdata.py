@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import requests
 
@@ -101,7 +101,7 @@ class BrightData(ProxyProvider):
 
         return proxies
 
-    def get_active_zones(self) -> Dict:
+    def get_active_zones(self) -> Any:
         """Fetches active zones from BrightData API.
 
         Response:
@@ -126,7 +126,7 @@ class BrightData(ProxyProvider):
         :param zone: The zone ID to fetch username for
         """
 
-        data = self._make_request(f"/status", "GET", params={"zone": zone})
+        data = self._make_request("/status", "GET", params={"zone": zone})
 
         customer = data.get("customer")
         if not customer:
@@ -134,7 +134,7 @@ class BrightData(ProxyProvider):
 
         return f"brd-customer-{customer}-zone-{zone}"
 
-    def get_zone_passwords(self, zone: str) -> Dict:
+    def get_zone_passwords(self, zone: str) -> Any:
         """Fetches zone passwords from BrightData API.
 
         :param zone: The zone ID to fetch passwords for
@@ -152,9 +152,9 @@ class BrightData(ProxyProvider):
             }
 
         """
-        return self._make_request(f"/zone/passwords", "GET", params={"zone": zone})
+        return self._make_request("/zone/passwords", "GET", params={"zone": zone})
 
-    def list_all_ips_in_zone(self, zone: str, country: Optional[str] = None) -> Dict:
+    def list_all_ips_in_zone(self, zone: str, country: Optional[str] = None) -> Any:
         """Fetches all IPs in a zone from BrightData API.
 
         :param zone: The zone ID to fetch IPs for
@@ -174,7 +174,7 @@ class BrightData(ProxyProvider):
 
         """
         return self._make_request(
-            f"/zone/route_ips",
+            "/zone/route_ips",
             "GET",
             params={"zone": zone, "list_countries": True, "country": country},
         )
@@ -183,9 +183,9 @@ class BrightData(ProxyProvider):
         self,
         path: str,
         method: str,
-        params: Optional[Dict] = None,
-        json: Optional[Dict] = None,
-    ) -> Dict:
+        params: Optional[Dict[str, Any]] = None,
+        json: Optional[Dict[str, Any]] = None,
+    ) -> Any:
         """Makes a request to the BrightData API.
 
         :param path: The path to the endpoint
@@ -199,9 +199,19 @@ class BrightData(ProxyProvider):
         }
 
         url = f"{self._BASE_URL}{path}"
-        response = requests.request(
-            method, url, headers=headers, params=params, json=json
-        )
+        try:
+            response = requests.request(
+                method,
+                url,
+                headers=headers,
+                params=params,
+                json=json,
+                timeout=self.config.timeout,
+            )
+        except requests.exceptions.RequestException as e:
+            raise ProxyFetchException(
+                f"Failed to fetch from BrightData: {str(e)}"
+            ) from e
 
         if response.status_code != 200:
             raise ProxyFetchException(
@@ -209,10 +219,8 @@ class BrightData(ProxyProvider):
             )
 
         try:
-            data = response.json()
+            return response.json()
         except Exception as e:
             raise ProxyInvalidResponseException(
                 f"Failed to parse response: {str(e)}"
             ) from e
-
-        return data

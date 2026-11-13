@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import requests
 
@@ -32,7 +32,7 @@ class Webshare(ProxyProvider):
         from proxyproviders import Webshare
 
         # Initialize the Webshare API client with an API key and optional parameters
-        proxy_provider = Webshare(api_key="your-api-key", params={"country_code_in": "US"})
+        proxy_provider = Webshare(api_key="your-api-key", search_params={"country_code_in": "US"})
 
         # Fetch proxies
         proxies = proxy_provider.list_proxies()
@@ -41,7 +41,7 @@ class Webshare(ProxyProvider):
         from proxyproviders import ProxyConfig
 
         config = ProxyConfig(refresh_interval=60)
-        proxy_provider = Webshare(api_key="your-api-key", params={"country_code_in": "US"}, config=config)
+        proxy_provider = Webshare(api_key="your-api-key", search_params={"country_code_in": "US"}, config=config)
 
         # Fetch proxies
         proxies = proxy_provider.list_proxies()
@@ -53,7 +53,7 @@ class Webshare(ProxyProvider):
     def __init__(
         self,
         api_key: str,
-        search_params: Optional[dict] = None,
+        search_params: Optional[Dict[str, Any]] = None,
         config: Optional[ProxyConfig] = None,
     ):
         super().__init__(config)
@@ -64,7 +64,7 @@ class Webshare(ProxyProvider):
         """Fetches proxies from Webshare API and converts them to the standardized Proxy format."""
         headers = {"Authorization": f"Token {self.api_key}"}
 
-        all_proxies = []
+        all_proxies: List[Proxy] = []
         page = 0
 
         while True:
@@ -78,7 +78,10 @@ class Webshare(ProxyProvider):
             params = {**default_params, **self.search_params}
             try:
                 response = requests.get(
-                    f"{self._BASE_URL}/proxy/list", params=params, headers=headers
+                    f"{self._BASE_URL}/proxy/list",
+                    params=params,
+                    headers=headers,
+                    timeout=self.config.timeout,
                 )
                 response.raise_for_status()  # Raises HTTPError for bad responses
             except requests.exceptions.RequestException as e:
@@ -97,7 +100,7 @@ class Webshare(ProxyProvider):
 
         return all_proxies
 
-    def _convert_to_proxy(self, data: Dict) -> Proxy:
+    def _convert_to_proxy(self, data: Dict[str, Any]) -> Proxy:
         """Converts Webshare's proxy data to the shared Proxy format."""
         try:
             return Proxy(

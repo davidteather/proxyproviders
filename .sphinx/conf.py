@@ -48,5 +48,7 @@ napoleon_google_docstring = True
 
 html_theme = "sphinx_rtd_theme"
 html_baseurl = "https://davidteather.github.io/proxyproviders/"
+# Copied to the site root as-is: llms.txt, a plain-text summary for AI assistants
+html_extra_path = ["llms.txt"]
 
 source_suffix = {".rst": "restructuredtext", ".md": "markdown", ".txt": "rst"}

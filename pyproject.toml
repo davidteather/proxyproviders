@@ -1,49 +1,108 @@
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry]
-name = "proxyproviders"
-version = "0.2.3"
-description = "A unified interface for different proxy providers"
-authors = ["David Teather <contact.davidteather@gmail.com>"]
-
-[tool.poetry.dependencies]
-python = ">=3.10"
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
 
 [project]
 name = "proxyproviders"
-version = "0.2.3"
-description = "A unified interface for different proxy providers"
+version = "0.3.0"
+description = "One interface for proxy vendors (Webshare, Bright Data, or your own list) that works with requests, httpx, aiohttp, Playwright, Scrapy and more"
 readme = "README.md"
 authors = [{ name = "David Teather", email = "contact.davidteather@gmail.com" }]
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 dependencies = ["requests"]
 requires-python = ">=3.10"
+keywords = [
+    "proxy",
+    "proxies",
+    "proxy-provider",
+    "proxy-rotation",
+    "rotating-proxies",
+    "proxy-pool",
+    "scrapy",
+    "web-scraping",
+    "requests",
+    "httpx",
+    "aiohttp",
+    "playwright",
+    "socks5",
+    "webshare",
+    "brightdata",
+]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "sphinx", "black", "mypy", "coverage", "types-requests", "toml"]
+# Needed by requests to connect through a SOCKS proxy
+socks = ["requests[socks]"]
+# Needed for proxyproviders.httpx_transport
+httpx = ["httpx>=0.26"]
 
-[tool.setuptools.packages.find]
-where = ["proxyproviders"]
+[project.urls]
+Homepage = "https://github.com/davidteather/proxyproviders"
+Documentation = "https://davidteather.github.io/proxyproviders/"
+"Source Code" = "https://github.com/davidteather/proxyproviders"
+Issues = "https://github.com/davidteather/proxyproviders/issues"
+Changelog = "https://github.com/davidteather/proxyproviders/releases"
+Funding = "https://github.com/sponsors/davidteather"
+
+[dependency-groups]
+dev = [
+    "coverage[toml]>=7.6.12",
+    "aiohttp",
+    "httpx[socks]",
+    "mypy>=1.15.0",
+    "pytest>=8.3.4",
+    "requests[socks]",
+    "responses>=0.25.6",
+    "ruff>=0.17.5",
+    "types-requests>=2.32.0.20241016",
+]
+docs = [
+    "httpx",
+    "myst-parser",
+    "sphinx",
+    "sphinx-rtd-theme",
+    "toml>=0.10.2",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["proxyproviders"]
+# 2.4 is the version that added the license fields used above. Pinned so a newer
+# hatchling does not emit a metadata version PyPI's upload tooling has yet to accept.
+core-metadata-version = "2.4"
+
+[tool.hatch.build.targets.sdist]
+# Leading slashes anchor these to the repo root, otherwise "proxyproviders" also
+# matches the generated docs under .sphinx/
+include = ["/proxyproviders", "/README.md", "/LICENSE"]
+core-metadata-version = "2.4"
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+# E/W: pycodestyle, F: pyflakes, I: import sorting, B: bugbear
+select = ["E", "F", "W", "I", "B"]
+# Line length is left to the formatter, which does not split long strings or comments
+ignore = ["E501"]
+
+[tool.mypy]
+strict = true
+files = ["proxyproviders"]
+warn_unreachable = true
 
 [tool.coverage.run]
 branch = true
 source = ["proxyproviders"]
 omit = ["tests/*"]
-
-
-[tool.poetry.group.dev.dependencies]
-mypy = "^1.15.0"
-black = "^25.1.0"
-pytest = "^8.3.4"
-coverage = "^7.6.12"
-types-requests = "^2.32.0.20241016"
-toml = "^0.10.2"
-responses = "^0.25.6"

@@ -1,3 +1,6 @@
+import logging
+import threading
+import time
 from datetime import timedelta
 from typing import List
 
@@ -93,3 +96,122 @@ def test_refresh_interval():
     # Fetch new proxies after interval has passed
     provider._set_proxies([4, 5, 6])
     assert provider.list_proxies() == [4, 5, 6]
+
+
+#
+# Concurrency and failed refreshes
+#
+
+
+class CountingProvider(ProxyProvider):
+    """Counts fetches, and can be told to fail or to be slow."""
+
+    def __init__(self, config=None, delay=0.0):
+        super().__init__(config)
+        self.calls = 0
+        self.fail = False
+        self.delay = delay
+
+    def _fetch_proxies(self):
+        self.calls += 1
+        if self.delay:
+            time.sleep(self.delay)
+        if self.fail:
+            raise RuntimeError("provider is down")
+        return [f"proxy-{self.calls}"]
+
+
+def make_stale(provider):
+    provider._last_refresh = provider._last_refresh - timedelta(
+        seconds=provider.config.refresh_interval + 1
+    )
+
+
+def test_concurrent_callers_trigger_one_fetch():
+    provider = CountingProvider(delay=0.05)
+    results = []
+    barrier = threading.Barrier(8)
+
+    def worker():
+        barrier.wait()
+        results.append(provider.list_proxies())
+
+    threads = [threading.Thread(target=worker) for _ in range(8)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    assert provider.calls == 1
+    assert results == [["proxy-1"]] * 8
+
+
+def test_concurrent_callers_trigger_one_refresh_when_stale():
+    provider = CountingProvider(delay=0.05)
+    provider.list_proxies()
+    make_stale(provider)
+
+    threads = [threading.Thread(target=provider.list_proxies) for _ in range(8)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    assert provider.calls == 2
+    assert provider.list_proxies() == ["proxy-2"]
+
+
+def test_failed_refresh_serves_previous_list(caplog):
+    provider = CountingProvider()
+    assert provider.list_proxies() == ["proxy-1"]
+
+    provider.fail = True
+    make_stale(provider)
+    with caplog.at_level(logging.WARNING, logger="proxyproviders.proxy_provider"):
+        assert provider.list_proxies() == ["proxy-1"]
+
+    assert "serving the previous list" in caplog.text
+    assert provider.calls == 2
+
+
+def test_failed_refresh_is_not_retried_on_every_call():
+    provider = CountingProvider()
+    provider.list_proxies()
+    provider.fail = True
+    make_stale(provider)
+
+    for _ in range(5):
+        assert provider.list_proxies() == ["proxy-1"]
+    assert provider.calls == 2  # the first fetch and one failed refresh
+
+    # Once the retry delay has passed the provider is tried again, and recovers
+    provider.fail = False
+    provider._retry_refresh_after = provider._retry_refresh_after - timedelta(
+        seconds=provider.config.refresh_retry_delay + 1
+    )
+    assert provider.list_proxies() == ["proxy-3"]
+    assert provider._retry_refresh_after is None
+
+
+def test_failed_first_fetch_raises():
+    provider = CountingProvider()
+    provider.fail = True
+    with pytest.raises(RuntimeError):
+        provider.list_proxies()
+
+
+def test_failed_force_refresh_raises_and_keeps_previous_list():
+    provider = CountingProvider()
+    provider.list_proxies()
+    provider.fail = True
+
+    with pytest.raises(RuntimeError):
+        provider.list_proxies(force_refresh=True)
+
+    assert provider.list_proxies() == ["proxy-1"]
+
+
+def test_config_defaults():
+    config = ProxyConfig()
+    assert config.timeout == 30
+    assert config.refresh_retry_delay == 30

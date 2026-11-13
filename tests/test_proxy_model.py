@@ -3,6 +3,7 @@
 from datetime import datetime
 
 import pytest
+import requests
 
 from proxyproviders.models.proxy import Proxy, ProxyFormat
 
@@ -161,11 +162,7 @@ class TestProxyFormat:
     def test_format_httpx(self, sample_proxy):
         """Test format for httpx."""
         result = sample_proxy.format(ProxyFormat.HTTPX)
-        expected = {
-            "http://": "http://testuser:testpass@192.168.1.100:8080",
-            "https://": "http://testuser:testpass@192.168.1.100:8080",
-        }
-        assert result == expected
+        assert result == "http://testuser:testpass@192.168.1.100:8080"
 
     def test_format_aiohttp(self, sample_proxy):
         """Test format for aiohttp."""
@@ -339,9 +336,9 @@ class TestProxyFormat:
         for format_type in all_proxy_formats:
             try:
                 result = sample_proxy.format(format_type)
-                assert (
-                    result is not None
-                ), f"Format {format_type.value} should return a result"
+                assert result is not None, (
+                    f"Format {format_type.value} should return a result"
+                )
             except KeyError as e:
                 pytest.fail(f"Missing handler for ProxyFormat.{format_type.name}: {e}")
             except Exception as e:
@@ -408,7 +405,6 @@ class TestProxyIntegration:
         expected = {
             "http": "http://fulluser:fullpass@example.com:8080",
             "https": "http://fulluser:fullpass@example.com:8080",
-            "socks5": "http://fulluser:fullpass@example.com:8080",
         }
         assert requests_dict == expected
 
@@ -426,9 +422,9 @@ class TestProxyIntegration:
         curl_result = sample_proxy.format(ProxyFormat.CURL)
         assert isinstance(curl_result, list)
 
-        # HTTPX format returns dict
+        # HTTPX format returns the URL string passed as proxy=
         httpx_result = sample_proxy.format(ProxyFormat.HTTPX)
-        assert isinstance(httpx_result, dict)
+        assert isinstance(httpx_result, str)
 
         # AIOHTTP format returns string
         aiohttp_result = sample_proxy.format(ProxyFormat.AIOHTTP)
@@ -437,3 +433,78 @@ class TestProxyIntegration:
         # PLAYWRIGHT format returns dict
         playwright_result = sample_proxy.format(ProxyFormat.PLAYWRIGHT)
         assert isinstance(playwright_result, dict)
+
+
+class TestProxyRepr:
+    """The password must not show up when a proxy is printed or logged."""
+
+    def test_repr_hides_password(self, sample_proxy):
+        assert "testpass" not in repr(sample_proxy)
+        assert "testpass" not in str([sample_proxy])
+        assert "testuser" in repr(sample_proxy)
+
+    def test_password_still_readable_and_compared(self, sample_proxy):
+        assert sample_proxy.password == "testpass"
+        other = Proxy(
+            id=sample_proxy.id,
+            username=sample_proxy.username,
+            password="different",
+            proxy_address=sample_proxy.proxy_address,
+            port=sample_proxy.port,
+            country_code=sample_proxy.country_code,
+            city_name=sample_proxy.city_name,
+            created_at=sample_proxy.created_at,
+            protocols=sample_proxy.protocols,
+        )
+        assert other != sample_proxy
+
+
+class TestSocksFormatting:
+    """A SOCKS-only proxy is formatted with its SOCKS scheme for every client."""
+
+    @pytest.fixture
+    def socks_proxy(self):
+        return Proxy(
+            id="socks",
+            username="user",
+            password="pass",
+            proxy_address="proxy.example.com",
+            port=1080,
+            protocols=["socks5"],
+        )
+
+    URL = "socks5://user:pass@proxy.example.com:1080"
+
+    def test_scheme(self, socks_proxy, sample_proxy, sample_proxy_no_protocols):
+        assert socks_proxy.scheme == "socks5"
+        assert sample_proxy.scheme == "http"
+        assert sample_proxy_no_protocols.scheme == "http"
+
+    def test_mixed_protocols_prefer_http(self, socks_proxy):
+        socks_proxy.protocols = ["socks5", "http"]
+        assert socks_proxy.scheme == "http"
+
+    def test_unknown_protocols_fall_back_to_http(self, socks_proxy):
+        socks_proxy.protocols = ["ftp"]
+        assert socks_proxy.scheme == "http"
+
+    def test_to_url(self, socks_proxy):
+        assert socks_proxy.to_url() == self.URL
+        assert socks_proxy.to_url("http") == "http://user:pass@proxy.example.com:1080"
+
+    def test_requests_keys_are_target_schemes(self, socks_proxy):
+        """requests looks proxies up by the target URL's scheme, so a 'socks5' key
+        would never match and the request would go out without the proxy."""
+        result = socks_proxy.format(ProxyFormat.REQUESTS)
+        assert result == {"http": self.URL, "https": self.URL}
+        assert requests.utils.select_proxy("https://example.com/", result) == self.URL
+
+    def test_other_formats(self, socks_proxy):
+        assert socks_proxy.format(ProxyFormat.URL) == self.URL
+        assert socks_proxy.format(ProxyFormat.CURL) == ["-x", self.URL]
+        assert socks_proxy.format(ProxyFormat.AIOHTTP) == self.URL
+        assert socks_proxy.format(ProxyFormat.HTTPX) == self.URL
+        assert socks_proxy.format(ProxyFormat.SCRAPY) == self.URL
+        assert socks_proxy.format(ProxyFormat.PLAYWRIGHT)["server"] == (
+            "socks5://proxy.example.com:1080"
+        )

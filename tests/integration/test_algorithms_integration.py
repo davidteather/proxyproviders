@@ -5,7 +5,7 @@ import os
 import pytest
 import requests
 
-from proxyproviders.algorithms import First, Random, RoundRobin
+from proxyproviders.algorithms import First, Random
 from proxyproviders.models.proxy import ProxyFormat
 from proxyproviders.providers.webshare import Webshare
 
@@ -158,17 +158,14 @@ def test_webshare_playwright_format_comprehensive():
         assert field in playwright_config, f"Missing required field: {field}"
 
     for field in optional_fields:
-        if field in playwright_config:
-            assert True  # Field is present
-        else:
-            assert False, f"Missing optional field: {field}"
+        assert field in playwright_config, f"Missing optional field: {field}"
 
     # Verify server format
     server = playwright_config["server"]
     assert "://" in server, "Server should include protocol"
-    assert (
-        f"{proxy.proxy_address}:{proxy.port}" in server
-    ), "Server should include address and port"
+    assert f"{proxy.proxy_address}:{proxy.port}" in server, (
+        "Server should include address and port"
+    )
 
 
 @skip_integration
@@ -186,9 +183,9 @@ def test_webshare_playwright_e2e_simulation():
     # Check server format
     server = playwright_config["server"]
     assert "://" in server, "Server must include protocol"
-    assert (
-        f"{proxy.proxy_address}:{proxy.port}" in server
-    ), "Server must include address and port"
+    assert f"{proxy.proxy_address}:{proxy.port}" in server, (
+        "Server must include address and port"
+    )
 
     # Check authentication
     assert "username" in playwright_config, "Username field is required"
@@ -260,7 +257,7 @@ def test_webshare_round_robin_state_persistence():
     for i in range(min(len(all_proxies), 5)):  # Test up to 5 proxies
         proxy = provider.get_proxy()  # Uses default RoundRobin
         selected_proxies.append(proxy)
-        print(f"RoundRobin selection {i+1}: {proxy.proxy_address}:{proxy.port}")
+        print(f"RoundRobin selection {i + 1}: {proxy.proxy_address}:{proxy.port}")
 
     # Verify we're getting different proxies (state is maintained)
     if len(all_proxies) >= 2:
